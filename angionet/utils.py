@@ -66,6 +66,7 @@ def prettify_transforms(transforms: dict[str, A.BaseCompose]) -> dict[str, list[
     return dict(ptransforms)
 
 
+@torch.no_grad()
 def visualize(
     model: nn.Module,
     loader: DataLoader,
@@ -97,8 +98,10 @@ def visualize(
     images, masks = images[indices], masks[indices]
     model.eval().to(device)
 
-    with torch.no_grad():
-        predicted = model.forward(images.to(device)).sigmoid()
+    with torch.autocast(device_type = str(device)):
+        predicted = model.forward(images.to(device))
+        
+    predicted = predicted.sigmoid()
 
     if threshold is not None:
         predicted = (predicted > threshold).byte()
