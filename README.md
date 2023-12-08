@@ -29,8 +29,8 @@ from kaggle_secrets import UserSecretsClient
 
 secrets = UserSecretsClient()
 
-GITHUB_TOKEN = secrects.get_secret("<token-label>")
-USERNAME = secrect.get_secret("<username-label>")
+GITHUB_TOKEN = secrects.get_secret("github-token")
+USERNAME = secrect.get_secret("github-username")
 URL = f"https://{USERNAME}:{GITHUB_TOKEN}@github.com/{USERNAME}/sennet-segmentation.git"
     
 os.system(f"pip install -q git+{URL}")
