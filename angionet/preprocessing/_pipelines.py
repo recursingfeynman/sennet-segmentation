@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import cv2
@@ -8,7 +9,7 @@ from ..functional import cdist, decode, extract_patches
 
 
 def prepare_input(
-    path: str, rles: list[str], config: Any
+    path: str, rles: list[str], dest: str, config: Any
 ) -> list[tuple[str, int, int]]:
     """
     Prepares single path to convinient format for model training.
@@ -21,6 +22,8 @@ def prepare_input(
         Path to source image.
     rles : list[str]
         List of run-length encoded masks.
+    dest : str
+        Destination folder.
     config : Any
         Configuration class. Should have dim, stride, padding and fill attributes.
 
@@ -33,6 +36,7 @@ def prepare_input(
     stride = config.stride
     padding = config.padding
     fill = config.fill
+    image_id = Path(path).stem
 
     image = torch.from_numpy(cv2.imread(path, cv2.IMREAD_GRAYSCALE))
     masks = [torch.from_numpy(decode(rle, image.shape)) for rle in rles]
@@ -48,16 +52,14 @@ def prepare_input(
         if pixels_v > 0:
             image = patch[0].astype("uint8")
             masks = patch[1:].astype("uint8")
+
             if pixels_k < (dim * dim):
                 dtms = np.stack((cdist(patch[1]), cdist(patch[2])), dtype="float16")
             else:
-                empty = np.zeros((dim, dim), dtype="float16") + fill
+                empty = np.zeros((dim, dim)) + fill
                 dtms = np.stack((cdist(patch[1]), empty), dtype="float16")
 
-            group = path.replace("sparse", "dense").split("/")[-3]
-            image_id = path.split("/")[-1].replace(".tif", "")
-            filename = f"{group}/{image_id}-{index}.npz"
-
+            filename = f"{dest}/{image_id}-{index}.npz"
             np.savez_compressed(file=filename, image=image, masks=masks, dtms=dtms)
             data.append((filename, pixels_v, pixels_k))
 
