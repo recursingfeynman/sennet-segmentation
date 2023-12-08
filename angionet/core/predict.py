@@ -1,0 +1,75 @@
+from typing import Any
+
+import albumentations as A
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from ..datasets.sennet import InferenceDataset
+from ..postprocessing import postprocess
+from ..functional import combine_patches, extract_patches, encode
+
+
+@torch.no_grad()
+def predict(
+    model: nn.Module,
+    frame: pd.DataFrame,
+    transforms: A.BaseCompose,
+    device: str | torch.device,
+    config: Any,
+):
+    """
+    Predict segmentation masks.
+
+    Parameters
+    ----------
+    model : nn.Module
+        Trained model.
+    frame : pd.DataFrame
+        DataFrame containing paths to input images.
+    transforms : A.BaseCompose
+        Image transforms.
+    device : str or torch.device
+        Device on which to perform predictions.
+    config : Any
+        Configuration class. Should have dim, stride, padding, batch_size and thresholds 
+        attributes.
+
+    Returns
+    -------
+    list[str]
+        List of run-length encoded masks.
+    """
+    model.eval()
+    encodings = []
+    nthreads = torch.get_num_threads() * 2
+    for name, group in frame.groupby("group"):
+        volume = []
+        dataset = InferenceDataset(group.path.values, transforms)
+        loader = DataLoader(dataset, batch_size=config.batch_size, num_workers=nthreads)
+        for images in tqdm(loader, desc=f"Processing {name}"):
+            B, C, H, W = images.shape
+            patches = extract_patches(images, config.dim, config.stride, config.padding)
+            patches = patches.reshape(-1, C, H, W).to(device)
+
+            outputs = model.forward(patches).sigmoid().cpu()
+            outputs = outputs.contiguous().view(B, -1, outputs.size(1), H, W)
+            outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > config.threshold[0]
+            
+            volume.extend(combine_patches(
+                shape=(H, W),
+                patches=outputs.byte(),
+                dim=config.dim,
+                stride=config.stride,
+                lomc=True,
+            ).numpy())
+
+        volume = postprocess(np.stack(volume), threshold=16, connectivity=26)
+
+        for mask in volume:
+            encodings.append(encode(np.asarray(mask, dtype=np.uint8)))
+
+    return encodings
