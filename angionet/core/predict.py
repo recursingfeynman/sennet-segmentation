@@ -43,29 +43,38 @@ def predict(
     list[str]
         List of run-length encoded masks.
     """
+    dim = config.dim
+    stride = config.stride
+    padding = config.padding
+    bs = config.batch_size
+    thresholds = config.thresholds
+    
     model.eval()
     encodings = []
     nthreads = torch.get_num_threads() * 2
     for name, group in frame.groupby("group"):
         volume = []
         dataset = InferenceDataset(group.path.values, transforms)
-        loader = DataLoader(dataset, batch_size=config.batch_size, num_workers=nthreads)
+        loader = DataLoader(dataset, batch_size=bs, num_workers=nthreads)
         for images in tqdm(loader, desc=f"Processing {name}"):
             B, C, H, W = images.shape
-            patches = extract_patches(images, config.dim, config.stride, config.padding)
-            patches = patches.reshape(-1, C, H, W).to(device)
-
-            outputs = model.forward(patches).sigmoid().cpu()
-            outputs = outputs.contiguous().view(B, -1, outputs.size(1), H, W)
-            outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > config.threshold[0]
+            patches = extract_patches(images, dim, stride, padding)
+            patches = patches.reshape(-1, C, dim, dim)
+            
+            with torch.autocast(device_type = str(device)):
+                outputs = model.forward(patches.to(device))
+                
+            outputs = outputs.sigmoid().cpu()
+            outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
+            outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > thresholds[0]
             
             volume.extend(combine_patches(
                 shape=(H, W),
                 patches=outputs.byte(),
-                dim=config.dim,
-                stride=config.stride,
+                dim=dim,
+                stride=stride,
                 lomc=True,
-            ).numpy())
+            ).squeeze().numpy())
 
         volume = postprocess(np.stack(volume), threshold=16, connectivity=26)
 
