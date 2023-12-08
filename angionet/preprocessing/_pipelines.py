@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import torch
 
-from ..functional import decode, cdist, extract_patches
+from ..functional import cdist, decode, extract_patches
 
 
 def prepare_input(
@@ -32,6 +32,7 @@ def prepare_input(
     dim = config.dim
     stride = config.stride
     padding = config.padding
+    fill = config.fill
 
     image = torch.from_numpy(cv2.imread(path, cv2.IMREAD_GRAYSCALE))
     masks = [torch.from_numpy(decode(rle, image.shape)) for rle in rles]
@@ -50,8 +51,8 @@ def prepare_input(
             if pixels_k < (dim * dim):
                 dtms = np.stack((cdist(patch[1]), cdist(patch[2])), dtype="float16")
             else:
-                empty = np.zeros((dim, dim), dtype = 'float16') + config.fill
-                dtms = np.stack((cdist(patch[1]), empty), dtype = 'float16')
+                empty = np.zeros((dim, dim), dtype="float16") + fill
+                dtms = np.stack((cdist(patch[1]), empty), dtype="float16")
 
             group = path.replace("sparse", "dense").split("/")[-3]
             image_id = path.split("/")[-1].replace(".tif", "")
