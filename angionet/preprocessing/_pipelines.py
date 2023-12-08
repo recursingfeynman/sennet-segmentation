@@ -22,7 +22,7 @@ def prepare_input(
     rles : list[str]
         List of run-length encoded masks.
     config : Any
-        Configuration class. Should have dim, stride, padding attributes.
+        Configuration class. Should have dim, stride, padding and fill attributes.
 
     Returns
     -------
@@ -47,7 +47,11 @@ def prepare_input(
         if pixels_v > 0:
             image = patch[0].astype("uint8")
             masks = patch[1:].astype("uint8")
-            dtms = np.stack((cdist(patch[1]), cdist(patch[2])), dtype="float16")
+            if pixels_k < (dim * dim):
+                dtms = np.stack((cdist(patch[1]), cdist(patch[2])), dtype="float16")
+            else:
+                empty = np.zeros((dim, dim), dtype = 'float16') + config.fill
+                dtms = np.stack((cdist(patch[1]), empty), dtype = 'float16')
 
             group = path.replace("sparse", "dense").split("/")[-3]
             image_id = path.split("/")[-1].replace(".tif", "")
