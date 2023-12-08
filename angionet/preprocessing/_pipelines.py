@@ -45,6 +45,7 @@ def prepare_input(
         pixels_v = np.sum(patch[1])
         pixels_k = np.sum(patch[2])
         if pixels_v > 0:
+            image = patch[0].astype("uint8")
             masks = patch[1:].astype("uint8")
             dtms = np.stack((cdist(patch[1]), cdist(patch[2])), dtype="float16")
 
