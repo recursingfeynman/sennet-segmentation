@@ -8,6 +8,7 @@ from tqdm import tqdm
 from ..utils import cleanup
 
 
+@torch.no_grad()
 def evaluate(
     model: nn.Module,
     loader: DataLoader,
