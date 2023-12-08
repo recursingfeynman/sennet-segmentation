@@ -2,7 +2,7 @@ import gc
 import os
 import random
 from collections import defaultdict
-from typing import Any
+from typing import Any, Optional
 
 import albumentations as A
 import cv2
@@ -70,7 +70,7 @@ def visualize(
     model: nn.Module,
     loader: DataLoader,
     k: int = 8,
-    threshold: float | None = None,
+    threshold: Optional[float] = None,
     device: str | torch.device = "cpu",
 ):
     """
@@ -85,13 +85,13 @@ def visualize(
         PyTorch DataLoader instance.
     k : int, default=8
         Number of samples to visualize
-    threshold : float, default=None
-        Threshold for binary classification.
+    threshold : float, optional
+        Compare model outputs with given threshold.
     device : str or torch.device, default='cpu'
         Device to use for inference (e.g., "cpu" or "cuda").
     """
-    cleanup()
     clear_output(wait=True) # noqa
+
     images, masks, _ = next(iter(loader))
     indices = np.random.choice(len(images), size=k, replace=False)
     images, masks = images[indices], masks[indices]
@@ -114,6 +114,8 @@ def visualize(
             ax.imshow(gr[idx].squeeze(0).cpu(), cmap="Greys_r")
             ax.axis("off")
         plt.show()
+
+    cleanup()
 
 
 def load_volume(dataset: Any) -> dict[str, np.ndarray]:
