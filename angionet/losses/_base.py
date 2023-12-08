@@ -21,7 +21,7 @@ class BaseLoss(nn.Module):
             Computed class weights
         """
         # Class weights not defined for empty ground truth
-        class_counts = torch.sum(y_true, self.axes)
+        class_counts = torch.sum(y_true, (0, 2, 3))
         class_weights = 1.0 / class_counts / torch.sum(1.0 / class_counts)
 
         return class_weights
