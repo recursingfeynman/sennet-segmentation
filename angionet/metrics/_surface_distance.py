@@ -461,7 +461,7 @@ def compute_dice_coefficient(mask_gt, mask_pred):
       mask_pred: 3-dim Numpy array of type bool. The predicted mask.
 
     Returns:
-      the dice coeffcient as float. If both masks are empty, the result is NaN.
+      the dice coefficient as float. If both masks are empty, the result is NaN.
     """
     volume_sum = mask_gt.sum() + mask_pred.sum()
     if volume_sum == 0:

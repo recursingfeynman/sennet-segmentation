@@ -12,7 +12,7 @@ def prepare_input(
     path: str, rles: list[str], dest: str, config: Any
 ) -> list[tuple[str, int, int]]:
     """
-    Prepares single path to convinient format for model training.
+    Prepares single path to convenient format for model training.
     Load image, decode RLE, extract patches, compute distance transform maps, save
     as .npz.
 

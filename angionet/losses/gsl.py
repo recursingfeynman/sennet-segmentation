@@ -19,7 +19,7 @@ class GenSurfLoss(BaseLoss):
     total_steps : int
         Total training steps for alpha decay.
     sigmoid : bool
-        Wheter apply sigmoid function or not.
+        Whether apply sigmoid function or not.
     class_weights : torch.Tensor, optional
         Weights for different classes. If 'per_batch', it calculates weights
         per batch based on class frequencies. If 'None', weights equals 1.0.
