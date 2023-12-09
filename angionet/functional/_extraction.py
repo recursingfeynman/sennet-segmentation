@@ -56,7 +56,7 @@ def combine_patches(
 
     Parameters
     ----------
-    shape : tuple[int, ...]
+    shape : tuple of ints
         Original image size.
     patches : torch.Tensor
         Batch of extracted patches with shape [B, N, C, H, W].
