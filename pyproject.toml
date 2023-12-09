@@ -11,5 +11,9 @@ allow_redefinition = true
 packages = ["angionet"]
 
 
+[tool.codespell]
+skip = ["*.ipynb"]
+
+
 [tool.pytest.ini_options]
 testpaths = ["./tests/"]
