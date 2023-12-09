@@ -9,8 +9,7 @@ def extract_patches(
     image: torch.Tensor, dim: int, stride: int, padding: str = "constant"
 ) -> torch.Tensor:
     """
-    Extract patches from a batch of images. Copy from
-    https://kornia.readthedocs.io/en/latest/_modules/kornia/contrib/extract_patches.html
+    Extract patches from a batch of images.
 
     Parameters
     ----------
@@ -27,6 +26,11 @@ def extract_patches(
     -------
     torch.Tensor
         Batch of extracted patches [B, N, C, H, W].
+
+    Notes
+    -----
+    Copy from:
+    https://github.com/kornia/kornia/blob/master/kornia/contrib/extract_patches.py
     """
     assert image.dim() == 4, "Input images must be [B, C, H, W]."
 

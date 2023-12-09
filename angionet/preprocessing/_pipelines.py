@@ -12,15 +12,14 @@ def prepare_input(
     path: str, rles: list[str], dest: str, config: Any
 ) -> list[tuple[str, int, int]]:
     """
-    Prepares single path to convenient format for model training.
-    Load image, decode RLE, extract patches, compute distance transform maps, save
-    as .npz.
+    Prepare single path to convenient format for model training. Load image,
+    decode RLE, extract patches, compute distance transform maps, save as .npz.
 
     Parameters
     ----------
     path : str
         Path to source image.
-    rles : list[str]
+    rles : list of str
         List of run-length encoded masks.
     dest : str
         Destination folder.
@@ -29,9 +28,8 @@ def prepare_input(
 
     Returns
     -------
-    list[tuple[str, int, int]]
-        List of metadata from extracted patches: filepath, vessels pixels,
-        kidney pixels.
+    list of tuples[filepath, vessels pixels, kidney pixels]
+        List of metadata from extracted patches.
     """
     dim = config.dim
     stride = config.stride

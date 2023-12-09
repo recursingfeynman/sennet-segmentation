@@ -16,10 +16,17 @@ class TrainDataset(Dataset):
 
     Parameters
     ----------
-    paths : Sequence[str]
+    paths : sequence of str
         List of file paths to train images.
     transforms : A.BaseCompose
-        Albumentations Compose with image augmentations.
+        Albumentations Compose object.
+
+    Attributes
+    ----------
+    paths : sequence of str
+        List of file paths to train images.
+    transforms : A.BaseCompose
+        Albumentations Compose object.
     """
 
     def __init__(self, paths: Sequence[str], transforms: A.BaseCompose):
@@ -54,16 +61,10 @@ class InferenceDataset(Dataset):
 
     Parameters
     ----------
-    paths : Sequence[str]
+    paths : sequence of str
         List of file paths to test images.
     transforms : A.BaseCompose
         Albumentations Compose with image augmentations.
-    dim : int
-        Patch size.
-    stride : int
-        Stride for patch extraction.
-    padding : str, "reflect" or "constant"
-        Type of padding for patch extraction.
     """
 
     def __init__(
@@ -100,16 +101,16 @@ class VolumeDataset(Dataset):
 
     Attributes
     ----------
-    paths : Sequence[str]
-        Paths to images
-    vessels : Sequence[str]
-        Run-length encoded vessels masks
-    kidney : Sequence[str]
-        Run-length encoded kidney masks
+    paths : sequence of str
+        Paths to images.
+    vessels : sequence of str
+        Run-length encoded vessels masks.
+    kidney : sequence of str
+        Run-length encoded kidney masks.
     height : int
-        Height of input images
+        Height of input images.
     width : int
-        Width of input images
+        Width of input images.
     """
 
     def __init__(self, frame: pd.DataFrame, group: str):

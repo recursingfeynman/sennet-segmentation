@@ -10,7 +10,6 @@ from ._surface_distance import (
 def confusion_matrix(y_pred: torch.Tensor, y_true: torch.Tensor) -> np.ndarray:
     """
     Compute confusion matrix values.
-    https://stackoverflow.com/questions/59080843/
 
     Parameters
     ----------
@@ -23,6 +22,10 @@ def confusion_matrix(y_pred: torch.Tensor, y_true: torch.Tensor) -> np.ndarray:
     -------
     np.array
         Computed confusion matrix values: tn, fp, fn, tp.
+
+    References
+    ----------
+    [1] https://stackoverflow.com/questions/59080843/
     """
     y_pred = y_pred.flatten().long()
     y_true = y_true.flatten().long()
@@ -39,7 +42,7 @@ def dice(
     y_pred: torch.Tensor, y_true: torch.Tensor, reduction: bool = True
 ) -> torch.Tensor:
     """
-    Calculates Sørensen–Dice coefficient.
+    Calculate Sørensen-Dice coefficient.
 
     Parameters
     ----------
@@ -69,7 +72,7 @@ def jaccard(
     y_pred: torch.Tensor, y_true: torch.Tensor, reduction: bool = True
 ) -> torch.Tensor:
     """
-    Calculates Jaccard similarity coefficient (IoU).
+    Calculate Jaccard similarity coefficient (IoU).
 
     Parameters
     ----------
@@ -102,8 +105,9 @@ def surface_dice(
     spacing: tuple[int, ...] = (1, 1),
 ) -> float:
     """
-    Computes the surface Dice coefficient at a specified tolerance.
-    See https://github.com/google-deepmind/surface-distance
+    Compute the surface Dice coefficient at a specified tolerance.
+
+    See https://github.com/google-deepmind/surface-distance.
 
     Parameters
     ----------

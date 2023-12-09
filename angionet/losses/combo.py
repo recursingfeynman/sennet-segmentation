@@ -10,7 +10,7 @@ class ComboLoss(nn.Module):
 
     Parameters
     ----------
-    criterions : list[nn.Module]
+    criterions : list of nn.Module
         A list of loss function instances to be combined.
     weights : list, optional
         A list of weights corresponding to each criterion. If None, weights are set
@@ -18,7 +18,7 @@ class ComboLoss(nn.Module):
 
     Attributes
     ----------
-    criterions : list[nn.Module]
+    criterions : list of nn.Module
         List of loss functions.
     weights : list
         List with weights for each criterion.

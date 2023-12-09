@@ -12,7 +12,7 @@ from ..utils import cleanup
 def evaluate(
     model: nn.Module,
     loader: DataLoader,
-    criterion: torch.nn.Module,
+    criterion: nn.Module,
     scoring: Callable,
     device: torch.device,
     threshold: float = 0.5,
@@ -26,7 +26,7 @@ def evaluate(
         The model to evaluate.
     loader : DataLoader
         PyTorch DataLoader containing test data.
-    criterion : torch.nn.Module
+    criterion : nn.Module
         Loss function used for evaluation.
     scoring : Callable
         Scoring function to evaluate model performance.
@@ -37,7 +37,7 @@ def evaluate(
 
     Returns
     -------
-    tuple[float, float]
+    tuple of floats
         A tuple containing the average loss and score over the evaluation dataset.
 
     """

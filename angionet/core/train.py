@@ -47,7 +47,7 @@ def train(
 
     Returns
     -------
-    tuple[float, float]
+    tuple of floats
         A tuple containing the average loss and score over the training dataset.
 
     """

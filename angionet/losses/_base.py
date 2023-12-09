@@ -9,7 +9,7 @@ class BaseLoss(nn.Module):
 
     def compute_weights(self, y_true: torch.Tensor) -> torch.Tensor:
         """
-        Calculates class weights from ground truth.
+        Calculate class weights from ground truth.
 
         Parameters
         ----------
@@ -19,7 +19,7 @@ class BaseLoss(nn.Module):
         Returns
         -------
         torch.Tensor
-            Computed class weights
+            Computed class weights.
         """
         # Class weights not defined for empty ground truth
         class_counts = torch.sum(y_true, (0, 2, 3))

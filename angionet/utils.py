@@ -85,13 +85,13 @@ def visualize(
     loader : torch.utils.data.DataLoader
         PyTorch DataLoader instance.
     k : int, default=8
-        Number of samples to visualize
-    threshold : float, optional
+        Number of samples to visualize.
+    threshold : float, default=None
         Compare model outputs with given threshold.
     device : str or torch.device, default='cpu'
         Device to use for inference (e.g., "cpu" or "cuda").
     """
-    clear_output(wait=True)  # noqa
+    clear_output(wait=True) # noqa
 
     images, masks, _ = next(iter(loader))
     indices = np.random.choice(len(images), size=k, replace=False)
@@ -163,7 +163,7 @@ def save_volume(
         Images group. Destination directory with this name will be created.
     volume : dict[str, np.array]
         Volume to save.
-    axis : tuple[int, int, int]
+    axis : tuple of ints
         Transpose volume to a given axis.
 
     Returns

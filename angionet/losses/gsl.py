@@ -49,6 +49,11 @@ class GenSurfLoss(BaseLoss):
     forward(y_pred, y_true, dtms)
         Compute the Generalized Surface Loss.
 
+    References
+    ----------
+    [1] Celaya, Adrian et al. “A Generalized Surface Loss for Reducing the Hausdorff
+        Distance in Medical Imaging Segmentation.” (2023).
+        https://arxiv.org/abs/2302.03868
     """
 
     def __init__(

@@ -4,12 +4,12 @@ import numpy as np
 
 def postprocess(volume: np.ndarray, threshold: int, connectivity: int) -> np.ndarray:
     """
-    Apply postprocessing steps for stacked predicted masks
+    Apply postprocessing steps for stacked predicted masks.
 
     Parameters
     ----------
     volume : np.array
-        Stacked predicted masks
+        Predicted volume.
     threshold : int
         An integer value used as the threshold for connected components.
         Connected components with sizes less than this threshold will be removed.

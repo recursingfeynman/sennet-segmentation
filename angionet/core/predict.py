@@ -34,13 +34,13 @@ def predict(
         Image transforms.
     device : str or torch.device
         Device on which to perform predictions.
-    config : Any
+    config : any
         Configuration class. Should have dim, stride, padding, batch_size and thresholds
         attributes.
 
     Returns
     -------
-    list[str]
+    list of str
         List of run-length encoded masks.
     """
     dim = config.dim

@@ -37,7 +37,7 @@ def decode(rle: str, dim: tuple[int, ...]) -> np.ndarray:
     ----------
     rle : str
         The RLE-encoded string.
-    dim : tuple[int, int]
+    dim : tuple of ints
         The size of the output binary mask.
 
     Returns
