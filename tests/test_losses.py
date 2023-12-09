@@ -17,7 +17,7 @@ class TestBaseLoss:
         for weight in class_weights:
             assert 0.0 <= weight <= 1.0
 
-    def test_class_weights_sum(self, class_weights):        
+    def test_class_weights_sum(self, class_weights):
         assert np.sum(class_weights) == pytest.approx(1.0, 1e-6)
 
     def test_class_weights_values(self, class_weights):
