@@ -66,7 +66,7 @@ def combine_patches(
         Stride during patch extraction.
     lomc : bool, default=False
         Logical OR mask combination (LOMC). By default, patches are merged
-        with the `=` operator. LOMC includes both values ​​in the overlapping region.
+        with the `=` operator. LOMC includes both values in the overlapping region.
         Only useful if the stride < dim. Patches should have appropriate
         dtype (e.g. uint8).
 
