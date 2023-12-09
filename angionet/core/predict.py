@@ -35,8 +35,8 @@ def predict(
     device : str or torch.device
         Device on which to perform predictions.
     config : any
-        Configuration class. Should have dim, stride, padding, batch_size and thresholds
-        attributes.
+        Configuration class. Should have dim, stride, padding, batch_size, thresholds
+        and lomc attributes.
 
     Returns
     -------
@@ -48,6 +48,7 @@ def predict(
     padding = config.padding
     bs = config.batch_size
     thresholds = config.thresholds
+    lomc = config.lomc
 
     model.eval()
     encodings = []
@@ -68,21 +69,14 @@ def predict(
             outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
             outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > thresholds[0]
 
-            volume.extend(
-                combine_patches(
-                    shape=(H, W),
-                    patches=outputs.byte(),
-                    dim=dim,
-                    stride=stride,
-                    lomc=True,
-                )
-                .squeeze()
-                .numpy()
-            )
+            # Reconstruct original image
+            outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc=lomc)
+            volume.extend(outputs.squeeze().numpy())
 
         volume = postprocess(np.stack(volume), threshold=16, connectivity=26)
 
         for mask in volume:
-            encodings.append(encode(np.asarray(mask, dtype=np.uint8)))
+            rle = encode(np.asarray(mask, dtype=np.uint8))
+            encodings.append(rle)
 
     return encodings
