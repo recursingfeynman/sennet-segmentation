@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 from ._base import BaseLoss
 
+
 class GenSurfLoss(BaseLoss):
     """
     Generalized Surface Loss for semantic segmentation tasks.
@@ -20,7 +21,7 @@ class GenSurfLoss(BaseLoss):
     sigmoid : bool
         Wheter apply sigmoid function or not.
     class_weights : torch.Tensor, optional
-        Weights for different classes. If 'per_batch', it calculates weights 
+        Weights for different classes. If 'per_batch', it calculates weights
         per batch based on class frequencies. If 'None', weights equals 1.0.
 
     Attributes

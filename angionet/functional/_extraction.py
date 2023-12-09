@@ -28,7 +28,7 @@ def extract_patches(
     torch.Tensor
         Batch of extracted patches [B, N, C, H, W].
     """
-    assert image.dim() == 4, 'Input images must be [B, C, H, W].'
+    assert image.dim() == 4, "Input images must be [B, C, H, W]."
 
     B, C = image.shape[:2]
     pad = calc_pad(image.shape, dim, stride)
@@ -81,7 +81,7 @@ def combine_patches(
     rec = torch.empty((B, C, *padded_shape)).type_as(patches)
     for n in range(N):
         ypos, xpos = locs[n, 0] * stride, locs[n, 1] * stride
-        
+
         if lomc:
             rec[..., ypos : ypos + dim, xpos : xpos + dim] |= patches[:, n]
         else:

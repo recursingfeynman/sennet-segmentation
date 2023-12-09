@@ -1,7 +1,3 @@
-from .sennet import TrainDataset, InferenceDataset, VolumeDataset
+from .sennet import InferenceDataset, TrainDataset, VolumeDataset
 
-__all__ = [
-    "TrainDataset",
-    "InferenceDataset",
-    "VolumeDataset"
-]
+__all__ = ["TrainDataset", "InferenceDataset", "VolumeDataset"]

@@ -13,11 +13,10 @@
 # limitations under the License.
 """Lookup tables used by surface distance metrics."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import math
+
 import numpy as np
 
 ENCODE_NEIGHBOURHOOD_3D_KERNEL = np.array([[[128, 64], [32, 16]], [[8, 4], [2, 1]]])

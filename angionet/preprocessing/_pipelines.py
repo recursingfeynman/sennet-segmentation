@@ -30,7 +30,8 @@ def prepare_input(
     Returns
     -------
     list[tuple[str, int, int]]
-        List of metadata from extracted patches (filepath, vessels pixels, kidney pixels).
+        List of metadata from extracted patches: filepath, vessels pixels,
+        kidney pixels.
     """
     dim = config.dim
     stride = config.stride

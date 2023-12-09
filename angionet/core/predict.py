@@ -9,8 +9,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from ..datasets.sennet import InferenceDataset
+from ..functional import combine_patches, encode, extract_patches
 from ..postprocessing import postprocess
-from ..functional import combine_patches, extract_patches, encode
 
 
 @torch.no_grad()
@@ -35,7 +35,7 @@ def predict(
     device : str or torch.device
         Device on which to perform predictions.
     config : Any
-        Configuration class. Should have dim, stride, padding, batch_size and thresholds 
+        Configuration class. Should have dim, stride, padding, batch_size and thresholds
         attributes.
 
     Returns
@@ -48,7 +48,7 @@ def predict(
     padding = config.padding
     bs = config.batch_size
     thresholds = config.thresholds
-    
+
     model.eval()
     encodings = []
     nthreads = torch.get_num_threads() * 2
@@ -60,21 +60,25 @@ def predict(
             B, C, H, W = images.shape
             patches = extract_patches(images, dim, stride, padding)
             patches = patches.reshape(-1, C, dim, dim)
-            
-            with torch.autocast(device_type = str(device)):
+
+            with torch.autocast(device_type=str(device)):
                 outputs = model.forward(patches.to(device))
-                
+
             outputs = outputs.sigmoid().cpu()
             outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
             outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > thresholds[0]
-            
-            volume.extend(combine_patches(
-                shape=(H, W),
-                patches=outputs.byte(),
-                dim=dim,
-                stride=stride,
-                lomc=True,
-            ).squeeze().numpy())
+
+            volume.extend(
+                combine_patches(
+                    shape=(H, W),
+                    patches=outputs.byte(),
+                    dim=dim,
+                    stride=stride,
+                    lomc=True,
+                )
+                .squeeze()
+                .numpy()
+            )
 
         volume = postprocess(np.stack(volume), threshold=16, connectivity=26)
 

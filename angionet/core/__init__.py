@@ -1,9 +1,5 @@
-from .train import train
 from .evaluate import evaluate
 from .predict import predict
+from .train import train
 
-__all__ = [
-    "train",
-    "evaluate",
-    "predict"
-]
+__all__ = ["train", "evaluate", "predict"]

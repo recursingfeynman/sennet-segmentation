@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from IPython.display import clear_output # noqa
+from IPython.display import clear_output  # noqa
 from torch.utils.data import DataLoader
 
 from .functional import encode
@@ -56,7 +56,7 @@ def prettify_transforms(transforms: dict[str, A.BaseCompose]) -> dict[str, list[
     Returns
     -------
     dict[str, list[str]]
-        A prettified dictionary where keys are stage name (train/test) and values 
+        A prettified dictionary where keys are stage name (train/test) and values
         are lists of transforms class names.
     """
     ptransforms = defaultdict(list)
@@ -75,7 +75,7 @@ def visualize(
     device: str | torch.device = "cpu",
 ):
     """
-    Visualize the model predictions alongside the original images and masks 
+    Visualize the model predictions alongside the original images and masks
     from a DataLoader.
 
     Parameters
@@ -91,16 +91,16 @@ def visualize(
     device : str or torch.device, default='cpu'
         Device to use for inference (e.g., "cpu" or "cuda").
     """
-    clear_output(wait=True) # noqa
+    clear_output(wait=True)  # noqa
 
     images, masks, _ = next(iter(loader))
     indices = np.random.choice(len(images), size=k, replace=False)
     images, masks = images[indices], masks[indices]
     model.eval().to(device)
 
-    with torch.autocast(device_type = str(device)):
+    with torch.autocast(device_type=str(device)):
         predicted = model.forward(images.to(device))
-        
+
     predicted = predicted.sigmoid()
 
     if threshold is not None:
@@ -165,7 +165,7 @@ def save_volume(
         Volume to save.
     axis : tuple[int, int, int]
         Transpose volume to a given axis.
-    
+
     Returns
     -------
     pd.DataFrame

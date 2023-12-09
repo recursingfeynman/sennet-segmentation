@@ -3,9 +3,9 @@ from typing import Sequence
 import albumentations as A
 import cv2
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
-import pandas as pd
 
 from ..functional import decode
 
@@ -21,6 +21,7 @@ class TrainDataset(Dataset):
     transforms : A.BaseCompose
         Albumentations Compose with image augmentations.
     """
+
     def __init__(self, paths: Sequence[str], transforms: A.BaseCompose):
         self.paths = paths
         self.transforms = transforms
@@ -64,6 +65,7 @@ class InferenceDataset(Dataset):
     padding : str, "reflect" or "constant"
         Type of padding for patch extraction.
     """
+
     def __init__(
         self,
         paths: Sequence[str],
@@ -79,7 +81,7 @@ class InferenceDataset(Dataset):
         image = cv2.imread(self.paths[index], cv2.IMREAD_GRAYSCALE)
         image = np.asarray(image, np.float32)
 
-        image = self.transforms(image = image)['image']
+        image = self.transforms(image=image)["image"]
         image = (image - image.mean()) / (image.std() + 1e-6)
 
         return image
@@ -109,6 +111,7 @@ class VolumeDataset(Dataset):
     width : int
         Width of input images
     """
+
     def __init__(self, frame: pd.DataFrame, group: str):
         frame = frame.loc[frame.group == group]
         self.paths = frame.path.values
@@ -116,15 +119,15 @@ class VolumeDataset(Dataset):
         self.kidney = frame.kidney.values
         self.height = frame.height.iloc[0]
         self.width = frame.width.iloc[0]
-        
+
     def __len__(self) -> int:
         return len(self.paths)
-    
+
     def __getitem__(self, index: int) -> tuple[np.ndarray, ...]:
         image = cv2.imread(self.paths[index], cv2.IMREAD_GRAYSCALE)
-        image = np.asarray(image, dtype = 'uint8')
-        
+        image = np.asarray(image, dtype="uint8")
+
         vessels = decode(self.vessels[index], image.shape)
         kidney = decode(self.kidney[index], image.shape)
-        
+
         return image, vessels, kidney

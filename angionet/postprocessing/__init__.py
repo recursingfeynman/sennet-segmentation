@@ -1,5 +1,3 @@
 from ._pipelines import postprocess
 
-__all__ = [
-    "postprocess"
-]
+__all__ = ["postprocess"]
