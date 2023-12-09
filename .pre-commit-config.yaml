@@ -3,11 +3,19 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.7
     hooks:
-      - id: ruff
-        args: [ --fix ]
       - id: ruff-format
+      - id: ruff
+
   # Run mypy static type check
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
     hooks:
       - id: mypy
+
+  # Run codespell check
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+    - id: codespell
+      args: [ -w ]
+
