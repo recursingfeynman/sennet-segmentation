@@ -11,7 +11,7 @@ with open("requirements.txt", encoding="utf-8") as f:
 with open("README.md", encoding="utf-8") as f:
     LONG_DESCRIPTION = "\n" + f.read()
 
-EXTRAS = {"dev": ["pytest", "ruff", "mypy", "pre-commit"]}
+EXTRAS = {"dev": ["pytest", "ruff", "mypy", "codespell", "pre-commit"]}
 
 setup(
     name=NAME,
