@@ -1,4 +1,4 @@
-.PHONY all
+.PHONY: all
 
 venv:
 	python3 -m venv .venv
@@ -10,6 +10,7 @@ install-dev: venv
 lint: venv
 	.venv/bin/ruff check ./angionet/
 	.venv/bin/mypy ./angionet/
+	.venv/bin/codespell ./angionet/
 
 test: venv
 	.venv/bin/pytest -p no:cacheprovider ./tests/
