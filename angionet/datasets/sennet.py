@@ -50,7 +50,7 @@ class TrainDataset(Dataset):
         masks = torch.stack(augs["masks"][:2])
         dtms = torch.stack(augs["masks"][2:])
 
-        image = (image - image.mean()) / (image.std() + 1e-6)
+        image = (image - image.min()) / (image.max() - image.min() + 1e-6)
 
         return image, masks, dtms
 
