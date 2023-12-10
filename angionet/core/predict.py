@@ -1,26 +1,22 @@
 from typing import Any
 
-import albumentations as A
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from ..datasets.sennet import InferenceDataset
-from ..functional import combine_patches, encode, extract_patches
-from ..postprocessing import postprocess
+from ..functional import combine_patches, extract_patches
 
 
 @torch.no_grad()
 def predict(
     model: nn.Module,
-    frame: pd.DataFrame,
-    transforms: A.BaseCompose,
+    paths: list[str],
     device: str | torch.device,
     config: Any,
-):
+) -> np.ndarray:
     """
     Predict segmentation masks.
 
@@ -28,21 +24,20 @@ def predict(
     ----------
     model : nn.Module
         Trained model.
-    frame : pd.DataFrame
-        DataFrame containing paths to input images.
-    transforms : A.BaseCompose
-        Image transforms.
+    paths : list of str
+        Paths to source images (D,).
     device : str or torch.device
         Device on which to perform predictions.
     config : any
-        Configuration class. Should have dim, stride, padding, batch_size, thresholds
-        and lomc attributes.
+        The configuration class. Must have transforms, dim, stride, padding, batch_size,
+        thresholds and lomc attributes.
 
     Returns
     -------
-    list of str
-        List of run-length encoded masks.
+    np.array
+        Predicted volume [D, H, W].
     """
+    transforms = config.transforms
     dim = config.dim
     stride = config.stride
     padding = config.padding
@@ -51,32 +46,24 @@ def predict(
     lomc = config.lomc
 
     model.eval()
-    encodings = []
     nthreads = torch.get_num_threads() * 2
-    for name, group in frame.groupby("group"):
-        volume = []
-        dataset = InferenceDataset(group.path.values, transforms)
-        loader = DataLoader(dataset, batch_size=bs, num_workers=nthreads)
-        for images in tqdm(loader, desc=f"Processing {name}"):
-            B, C, H, W = images.shape
-            patches = extract_patches(images, dim, stride, padding)
-            patches = patches.reshape(-1, C, dim, dim)
+    volume = []
+    dataset = InferenceDataset(paths, transforms)
+    loader = DataLoader(dataset, batch_size=bs, num_workers=nthreads)
+    for images in tqdm(loader, desc="Processing"):
+        B, C, H, W = images.shape
+        patches = extract_patches(images, dim, stride, padding)
+        patches = patches.reshape(-1, C, dim, dim)
 
-            with torch.autocast(device_type=str(device)):
-                outputs = model.forward(patches.to(device))
+        with torch.autocast(device_type=str(device)):
+            outputs = model.forward(patches.to(device))
 
-            outputs = outputs.sigmoid().cpu()
-            outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
-            outputs = torch.mul(*outputs.unbind(2)).unsqueeze(2) > thresholds[0]
+        outputs = outputs.sigmoid().cpu()
+        outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
+        outputs = (outputs[:, :, 0:1] * outputs[:, :, 1:2]) > thresholds[0] # V * K
 
-            # Reconstruct original image
-            outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc=lomc)
-            volume.extend(outputs.squeeze().numpy())
+        # Reconstruct original images
+        outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
+        volume.extend(outputs.squeeze().numpy())
 
-        volume = postprocess(np.stack(volume), threshold=16, connectivity=26)
-
-        for mask in volume:
-            rle = encode(np.asarray(mask, dtype=np.uint8))
-            encodings.append(rle)
-
-    return encodings
+    return np.stack(volume)
