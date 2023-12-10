@@ -74,8 +74,8 @@ def visualize(
     threshold: float = 0.5,
     device: str | torch.device = "cpu",
     class_index: int = 0,
-    nrow: int = 4,
-    figsize: tuple = (12, 12),
+    nrow: int = 8,
+    figsize: tuple = (20, 6),
     return_masked = False
 ) -> list[np.ndarray] | None:
     clear_output(wait=True)
