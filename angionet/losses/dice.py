@@ -53,6 +53,8 @@ class DiceLoss(BaseLoss):
             Model outputs.
         y_true : torch.Tensor
             Target labels.
+        args : torch.Tensor
+            Exists due to compatibility.
 
         Returns
         -------
