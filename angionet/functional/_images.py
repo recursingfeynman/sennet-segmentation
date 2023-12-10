@@ -4,6 +4,12 @@ import ants
 import cv2
 import numpy as np
 
+COLORS = {
+    "tp": np.array([22, 166, 0], dtype="uint8"),  # green
+    "fn": np.array([0, 3, 166], dtype="uint8"),  # blue
+    "fp": np.array([166, 0, 0], dtype="uint8"),  # red
+}
+
 
 def encode(mask: np.ndarray) -> str:
     """
@@ -103,3 +109,18 @@ def remove_small_objects(mask: np.ndarray, min_size: int) -> np.ndarray:
         if stats[cl, cv2.CC_STAT_AREA] >= min_size:
             processed[label == cl] = 1
     return processed
+
+
+def colorize(image: np.ndarray, mask: np.ndarray, preds: np.ndarray) -> np.ndarray:
+    image = (image - image.min()) / (image.max() - image.min())
+    image = (image * 255).astype("uint8")
+    image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+
+    tp = mask & preds
+    fn = (mask ^ preds) & mask
+    fp = (mask ^ preds) & preds
+
+    masked = np.where(tp[..., None], COLORS["tp"], image)
+    masked = np.where(fn[..., None], COLORS["fn"], masked)
+    masked = np.where(fp[..., None], COLORS["fp"], masked)
+    return cv2.addWeighted(image, 0.1, masked, 0.9, 0)

@@ -2,7 +2,7 @@ import gc
 import os
 import random
 from collections import defaultdict
-from typing import Any, Optional
+from typing import Any
 
 import albumentations as A
 import cv2
@@ -13,8 +13,9 @@ import torch
 import torch.nn as nn
 from IPython.display import clear_output  # noqa
 from torch.utils.data import DataLoader
+from torchvision.utils import make_grid
 
-from .functional import encode
+from .functional import colorize, encode
 
 
 def set_seed(seed: int = 42):
@@ -70,54 +71,33 @@ def prettify_transforms(transforms: dict[str, A.BaseCompose]) -> dict[str, list[
 def visualize(
     model: nn.Module,
     loader: DataLoader,
-    k: int = 8,
-    threshold: Optional[float] = None,
+    threshold: float = 0.5,
     device: str | torch.device = "cpu",
+    class_index: int = 0,
+    nrow: int = 4,
+    figsize: tuple = (12, 12),
 ):
-    """
-    Visualize the model predictions alongside the original images and masks
-    from a DataLoader.
-
-    Parameters
-    ----------
-    model : torch.nn.Module
-        PyTorch model instance.
-    loader : torch.utils.data.DataLoader
-        PyTorch DataLoader instance.
-    k : int, default=8
-        Number of samples to visualize.
-    threshold : float, default=None
-        Compare model outputs with given threshold.
-    device : str or torch.device, default='cpu'
-        Device to use for inference (e.g., "cpu" or "cuda").
-    """
-    clear_output(wait=True) # noqa
-
     images, masks, _ = next(iter(loader))
-    indices = np.random.choice(len(images), size=k, replace=False)
-    images, masks = images[indices], masks[indices]
-    model.eval().to(device)
-
+    model.eval()
     with torch.autocast(device_type=str(device)):
-        predicted = model.forward(images.to(device))
+        preds = model.forward(images.to(device))
+    preds = (preds.sigmoid() > threshold).cpu()
 
-    predicted = predicted.sigmoid()
+    masked = []
+    for index in range(images.shape[0]):
+        image = images[index].squeeze().numpy()
+        mask = masks[index][class_index].numpy().astype("uint8")
+        pred = preds[index][class_index].numpy().astype("uint8")
+        colorized = torch.from_numpy(colorize(image, mask, pred))
+        masked.append(colorized.permute(2, 0, 1))
 
-    if threshold is not None:
-        predicted = (predicted > threshold).byte()
+    grid = make_grid(masked, nrow=nrow)
+    plt.figure(figsize=figsize)
+    plt.imshow(grid.permute(1, 2, 0))
+    plt.axis("off")
+    plt.show()
 
-    groups = (images, masks[:, 0], predicted[:, 0], masks[:, 1], predicted[:, 1])
-    titles = ("Original", "Vessels", "Predicted Vessels", "Kidney", "Predicted Kidney")
-
-    for gr, label in zip(groups, titles):
-        _, axs = plt.subplots(1, k, figsize=(15, 6))
-        plt.subplots_adjust(wspace=0)
-        plt.suptitle(label, y=0.65)
-        for idx, ax in enumerate(axs.flatten()):
-            ax.imshow(gr[idx].squeeze(0).cpu(), cmap="Greys_r")
-            ax.axis("off")
-        plt.show()
-
+    clear_output(wait=True)
     cleanup()
 
 

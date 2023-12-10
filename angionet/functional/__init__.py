@@ -1,5 +1,5 @@
 from ._extraction import calc_locs, calc_pad, combine_patches, extract_patches
-from ._images import cdist, decode, encode, remove_small_objects
+from ._images import cdist, colorize, decode, encode, remove_small_objects
 
 __all__ = [
     "extract_patches",
@@ -10,4 +10,5 @@ __all__ = [
     "remove_small_objects",
     "encode",
     "decode",
+    "colorize",
 ]
