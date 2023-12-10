@@ -78,6 +78,7 @@ def visualize(
     figsize: tuple = (12, 12),
     return_masked = False
 ) -> list[np.ndarray] | None:
+    clear_output(wait=True)
     images, masks, _ = next(iter(loader))
     model.eval()
     with torch.autocast(device_type=str(device)):
@@ -98,7 +99,6 @@ def visualize(
     plt.axis("off")
     plt.show()
 
-    clear_output(wait=True)
     cleanup()
 
     if return_masked:
