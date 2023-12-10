@@ -76,7 +76,8 @@ def visualize(
     class_index: int = 0,
     nrow: int = 4,
     figsize: tuple = (12, 12),
-):
+    return_masked = False
+) -> list[np.ndarray] | None:
     images, masks, _ = next(iter(loader))
     model.eval()
     with torch.autocast(device_type=str(device)):
@@ -99,6 +100,10 @@ def visualize(
 
     clear_output(wait=True)
     cleanup()
+
+    if return_masked:
+        return [m.permute(1, 2, 0).numpy() for m in masked]
+    return None
 
 
 def load_volume(dataset: Any) -> dict[str, np.ndarray]:
