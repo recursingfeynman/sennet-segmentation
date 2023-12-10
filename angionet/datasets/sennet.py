@@ -54,12 +54,14 @@ class TrainDataset(Dataset):
             for item in np.load(self.paths[index]).values()
         ]
 
-        augs = self.transforms(image=batch[0], masks=[*unbind(np.stack(batch[1:]), 0)])
+        augs = self.transforms(
+            image=batch[0], masks=[*unbind(np.concatenate(batch[1:]))]
+        )
         image = self.normalize(augs["image"])
-        masks = [torch.stack(augs["masks"][:len(batch[1])])]
+        masks = [torch.stack(augs["masks"][: len(batch[1])])]
 
         if len(augs["masks"]) > 2:
-            masks.append(torch.stack(augs["masks"][len(batch[1]):]))
+            masks.append(torch.stack(augs["masks"][len(batch[1]) :]))
 
         return image, *masks
 
