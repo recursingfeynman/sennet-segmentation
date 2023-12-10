@@ -55,14 +55,11 @@ def train(
     loss, score = 0.0, 0.0
     scaler = torch.cuda.amp.GradScaler()
     pbar = tqdm(loader, total=len(loader), desc="Train")
-    for step, (images, masks, dtms) in enumerate(pbar):
-        images = images.to(device)
-        masks = masks.to(device)
-        dtms = dtms.to(device)
-
+    for step, batch in enumerate(pbar):
+        batch = [element.to(device) for element in batch]
         with torch.autocast(device_type=str(device)):
-            output = model.forward(images)
-            running_loss = criterion(output, masks, dtms)
+            output = model.forward(batch[0])
+            running_loss = criterion(output, *batch[1:])
             running_loss = running_loss / accumulate
 
         scaler.scale(running_loss).backward()
@@ -75,7 +72,7 @@ def train(
 
             optimizer.zero_grad()
 
-        running_score = scoring((output.sigmoid() > threshold).byte(), masks.byte())
+        running_score = scoring((output.sigmoid() > threshold).byte(), batch[1].byte())
         running_loss = running_loss * accumulate
 
         loss += running_loss.item()

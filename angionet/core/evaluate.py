@@ -44,16 +44,13 @@ def evaluate(
     model.eval()
     loss, score = 0.0, 0.0
     pbar = tqdm(loader, total=len(loader), desc="Evaluation")
-    for images, masks, dtms in pbar:
-        images = images.to(device)
-        masks = masks.to(device)
-        dtms = dtms.to(device)
-
+    for batch in pbar:
+        batch = [element.to(device) for element in batch]
         with torch.autocast(device_type=str(device)):
-            output = model.forward(images)
-            running_loss = criterion(output, masks, dtms)
+            output = model.forward(batch[0])
+            running_loss = criterion(output, *batch[1:])
 
-        running_score = scoring((output.sigmoid() > threshold).byte(), masks.byte())
+        running_score = scoring((output.sigmoid() > threshold).byte(), batch[1].byte())
 
         loss += running_loss.item()
         score += running_score[0].item()
