@@ -76,7 +76,7 @@ def visualize(
     class_index: int = 0,
     nrow: int = 8,
     figsize: tuple = (20, 6),
-    return_masked = False
+    return_masked: bool = False,
 ) -> list[np.ndarray] | None:
     clear_output(wait=True)
     images, masks, _ = next(iter(loader))
@@ -177,3 +177,27 @@ def save_volume(
         data["kidney"].append(encode(kidney[index]))
 
     return pd.DataFrame.from_dict(data)
+
+
+def unbind(input: np.ndarray, axis: int = 0) -> list[np.ndarray]:
+    """
+    Removes a numpy array dimension. Same as torch.unbind.
+
+    Parameters
+    ----------
+    input : np.array
+        The array to unbind.
+    axis : int
+        Dimension to remove.
+
+    Returns
+    -------
+    np.array
+        Returns a tuple of all slices along a given dimension, already without it.
+
+    References
+    ----------
+    [1] https://stackoverflow.com/questions/64097426
+    [2] https://pytorch.org/docs/stable/generated/torch.unbind.html
+    """
+    return list(np.moveaxis(input, axis, 0))
