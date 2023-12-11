@@ -39,3 +39,8 @@ URL = f"https://{USERNAME}:{GITHUB_TOKEN}@github.com/{USERNAME}/sennet-segmentat
     
 os.system(f"pip install -q git+{URL}")
 ```
+
+## Submission
+```
+make submission
+```
