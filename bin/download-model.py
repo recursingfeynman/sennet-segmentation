@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -71,7 +72,9 @@ if __name__ == "__main__":
         if "training" not in run.get_structure().keys():
             raise FileNotFoundError("Selected run does not contain any checkpoints")
 
-        os.system(f"rm -rf {dest}/*.pt")
+        for model in glob.glob(f"{dest}/*.pt"):
+            os.remove(model)
+
         os.makedirs(dest, exist_ok=True)
 
         checkpoints = list(
@@ -83,4 +86,3 @@ if __name__ == "__main__":
         run.stop()
 
     print("Model downloaded successfully.")
-
