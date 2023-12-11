@@ -41,6 +41,6 @@ os.system(f"pip install -q git+{URL}")
 ```
 
 ## Submission
-```
-make submission
+```console
+$ make submission
 ```
