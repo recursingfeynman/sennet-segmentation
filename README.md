@@ -2,7 +2,7 @@
 
 ## Installation
 
-```console
+```shell
 $ pip install git+https://github.com/recursingfeynman/sennet-segmentation.git
 ```
 
@@ -10,7 +10,7 @@ $ pip install git+https://github.com/recursingfeynman/sennet-segmentation.git
 
 To install project with development dependencies use following code:
 
-```console
+```shell
 $ git clone https://github.com/recursingfeynman/sennet-segmentation.git
 
 $ cd sennet-segmentation
@@ -20,7 +20,7 @@ $ make install-dev
 
 ### Testing
 
-```console
+```shell
 $ make all
 ```
 
@@ -52,11 +52,18 @@ If you are using the Kaggle CLI tool, the tool will look for this token at `~/.k
 
 #### Neptune
 
-In the bottom-left corner of the Neptune app, expand the user menu and select `Get your API token`.
+In the bottom-left corner of the Neptune app, expand the user menu and select **Get your API token**. You need to set up some environment variables before running the script:
+
+```dosini
+# Inside .env file
+
+NEPTUNE-PROJECT="segteam/sennet"
+NEPTUNE-TOKEN="<neptune-api-token>"
+```
 
 ### Model submission
 
-```console
+```shell
 $ make submission
 ```
 
