@@ -165,5 +165,8 @@ cython_debug/
 # Submissions
 submission/
 
+# Neptune
+.neptune/
+
 # VSCode
 .vscode/
