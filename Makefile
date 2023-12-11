@@ -15,4 +15,11 @@ lint: venv
 test: venv
 	.venv/bin/pytest -p no:cacheprovider ./tests/
 
+submission: venv
+	.venv/bin/python3 bin/download-model.py
+	.venv/bin/python3 bin/build-project.py
+	.venv/bin/python3 bin/initialize-dataset.py
+	.venv/bin/python3 bin/submit-snapshot.py
+
 all: lint test
+
