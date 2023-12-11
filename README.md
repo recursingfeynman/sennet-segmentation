@@ -56,9 +56,9 @@ In the bottom-left corner of the Neptune app, expand the user menu and select `G
 
 ### Model submission
 
-Code below facilitates the integration between Neptune and Kaggle. It fetches runs from the Neptune tracking server, downloads the latest model checkpoint from a selected run, generates a code snapshot, and uploads the downloaded model and code snapshot to Kaggle as dataset.
-
 ```console
 $ make submission
 ```
+
+This code facilitates the integration between Neptune and Kaggle. It fetches runs from the Neptune tracking server, downloads the latest model checkpoint from a selected run, generates a code snapshot, and uploads the downloaded model and code snapshot to Kaggle as dataset.
 
