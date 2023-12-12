@@ -64,6 +64,6 @@ def predict(
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
-        volume.extend(outputs.squeeze().numpy())
+        volume.extend(outputs.numpy())
 
-    return np.stack(volume)
+    return np.concatenate(volume, 0)
