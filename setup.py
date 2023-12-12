@@ -17,7 +17,8 @@ EXTRAS = {"dev": ["pytest",
                   "codespell",
                   "pre-commit",
                   "kaggle",
-                  "environs"]}
+                  "environs",
+                  "click"]}
 
 setup(
     name=NAME,
