@@ -2,7 +2,6 @@ import json
 import os
 import subprocess
 
-URL = "https://github.com/recursingfeynman/sennet-segmentation.git"
 HASH = subprocess.check_output(["git", "rev-parse", "HEAD"])
 HASH = HASH.decode("ascii").strip()
 KAGGLE = ".venv/bin/kaggle"
@@ -27,7 +26,7 @@ if __name__ == "__main__":
         if os.path.exists(METADATA):
             os.remove(METADATA)
 
-        os.system(f"{PIP} wheel -w ./submission/snapshot --no-deps git+{URL}")
+        os.system(f"{PIP} wheel -w ./submission/snapshot --no-deps .")
 
         metadata = {"commit-hash": HASH}
         with open(METADATA, "w") as f:
