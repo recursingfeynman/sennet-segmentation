@@ -2,6 +2,7 @@ from typing import Callable, Optional
 
 import torch
 import torch.nn as nn
+from torch.nn.utils import clip_grad_norm_
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
@@ -19,7 +20,8 @@ def train(
     device: torch.device,
     scheduler: Optional[LRScheduler] = None,
     accumulate: int = 1,
-    threshold: float = 0.5
+    threshold: float = 0.5,
+    clipnorm: float = 1.0
 ) -> tuple[float, float]:
     """
     Train the model.
@@ -44,6 +46,8 @@ def train(
         Number of gradient accumulation steps
     threshold : float, default=0.5
         Threshold value to binarize prediction masks.
+    clipnorm : float, default=1.0
+        Gradients will be rescaled to have `clipnorm` vector norm.
 
     Returns
     -------
@@ -64,13 +68,15 @@ def train(
 
         scaler.scale(running_loss).backward()
         if (step + 1) % accumulate == 0:
+            scaler.unscale_(optimizer)
+            clip_grad_norm_(model.parameters(), clipnorm)
+
             scaler.step(optimizer)
             scaler.update()
+            optimizer.zero_grad()
 
             if scheduler is not None:
                 scheduler.step()
-
-            optimizer.zero_grad()
 
         running_score = scoring((output.sigmoid() > threshold).byte(), batch[1].byte())
         running_loss = running_loss * accumulate
