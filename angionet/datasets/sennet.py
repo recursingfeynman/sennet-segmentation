@@ -1,4 +1,4 @@
-from typing import Any, Sequence
+from typing import Any, Optional, Sequence
 
 import albumentations as A
 import cv2
@@ -24,15 +24,8 @@ class TrainDataset(Dataset):
     normalize : callable, optional
         The normalization function. If not specified, perform min-max normalization
         as default.
-
-    Attributes
-    ----------
-    paths : sequence of str
-        List of file paths to train images.
-    transforms : A.BaseCompose
-        Albumentations Compose object.
-    normalize : callable, optional
-        The normalization function. By default perform min-max normalization.
+    stats : tuple of floats, optional
+        Normalization statistics.
     """
 
     def __init__(
@@ -40,10 +33,12 @@ class TrainDataset(Dataset):
         paths: Sequence[str],
         transforms: A.BaseCompose,
         normalize: Any = None,
+        stats: Optional[tuple] = None,
     ):
         self.paths = paths
         self.transforms = transforms
         self.normalize = normalize if normalize is not None else rescale
+        self.stats = stats
 
     def __len__(self) -> int:
         return len(self.paths)
@@ -57,9 +52,13 @@ class TrainDataset(Dataset):
         augs = self.transforms(
             image=batch[0], masks=[*unbind(np.concatenate(batch[1:]))]
         )
-        image = self.normalize(augs["image"])
-        masks = [torch.stack(augs["masks"][: len(batch[1])])]
 
+        if self.stats is not None:
+            image = self.normalize(augs["image"], self.stats[index])
+        else:
+            image = self.normalize(augs["image"])
+
+        masks = [torch.stack(augs["masks"][: len(batch[1])])]
         if len(augs["masks"]) > 2:
             masks.append(torch.stack(augs["masks"][len(batch[1]) :]))
 
@@ -79,14 +78,21 @@ class InferenceDataset(Dataset):
     normalize : callable, optional
         The normalization function. If not specified, perform min-max normalization
         as default.
+    stats : tuple of floats
+        Normalization statistics.
     """
 
     def __init__(
-        self, paths: Sequence[str], transforms: A.BaseCompose, normalize: Any = None
+        self,
+        paths: Sequence[str],
+        transforms: A.BaseCompose,
+        normalize: Any = None,
+        stats: Optional[tuple] = None,
     ):
         self.paths = paths
         self.transforms = transforms
         self.normalize = normalize if normalize is not None else rescale
+        self.stats = stats
 
     def __len__(self) -> int:
         return len(self.paths)
@@ -96,7 +102,11 @@ class InferenceDataset(Dataset):
         image = np.asarray(image, np.float32)
 
         image = self.transforms(image=image)["image"]
-        image = self.normalize(image)
+
+        if self.stats is not None:
+            image = self.normalize(image, self.stats[index])
+        else:
+            image = self.normalize(image)
 
         return image
 
