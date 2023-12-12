@@ -12,7 +12,7 @@ packages = ["angionet"]
 
 
 [tool.codespell]
-skip = ["*.ipynb"]
+skip = "*.ipynb"
 
 
 [tool.pytest.ini_options]
