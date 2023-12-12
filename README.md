@@ -69,3 +69,12 @@ $ make submission
 
 This code facilitates the integration between Neptune and Kaggle. It fetches runs from the Neptune tracking server, downloads the latest model checkpoint from a selected run, generates a code snapshot, and uploads the downloaded model and code snapshot to Kaggle as dataset.
 
+### Notebook submission
+To submit entire inference notebook to competition use code below: 
+
+```shell
+$ make submission-notebook
+```
+
+It follows the same steps as described in the *Model submission* section. Once the snapshot is uploaded, it submits the notebook to Kaggle. Then just click “Submit to Competition”.
+
