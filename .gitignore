@@ -164,6 +164,7 @@ cython_debug/
 
 # Submissions
 submission/
+submission-notebook/
 
 # Neptune
 .neptune/
