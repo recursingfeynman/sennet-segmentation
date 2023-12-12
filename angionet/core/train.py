@@ -21,7 +21,7 @@ def train(
     scheduler: Optional[LRScheduler] = None,
     accumulate: int = 1,
     threshold: float = 0.5,
-    clipnorm: float = 1.0
+    clipnorm: Optional[float] = 1.0
 ) -> tuple[float, float]:
     """
     Train the model.
@@ -68,8 +68,9 @@ def train(
 
         scaler.scale(running_loss).backward()
         if (step + 1) % accumulate == 0:
-            scaler.unscale_(optimizer)
-            clip_grad_norm_(model.parameters(), clipnorm)
+            if clipnorm is not None:
+                scaler.unscale_(optimizer)
+                clip_grad_norm_(model.parameters(), clipnorm)
 
             scaler.step(optimizer)
             scaler.update()
