@@ -12,10 +12,10 @@ repos:
     hooks:
       - id: mypy
 
-  # # Run codespell check
-  # - repo: https://github.com/codespell-project/codespell
-  #   rev: v2.2.4
-  #   hooks:
-  #   - id: codespell
-  #     args: [ --config pyproject.toml ]
+  # Run codespell check
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+    - id: codespell
+      args: [ -w ]
 
