@@ -67,22 +67,26 @@ if __name__ == "__main__":
 
     # Download latest checkpoint
     dest = "./submission"
+    os.makedirs(dest, exist_ok=True)
     with HiddenPrints():
         run = neptune.init_run(with_id=selected, project=PROJECT, api_token=TOKEN)
-        if "training" not in run.get_structure().keys():
+        if "models" not in run.get_structure().keys():
             raise FileNotFoundError("Selected run does not contain any checkpoints")
 
         for model in glob.glob(f"{dest}/*.pt"):
             os.remove(model)
 
-        os.makedirs(dest, exist_ok=True)
+    models = list(run.get_structure()["models"].keys())
 
-        checkpoints = list(
-            run.get_structure()["training"]["model"]["checkpoints"].keys()
-        )
-        run[f"training/model/checkpoints/{checkpoints[-1]}"].download(
-            dest + f"/{selected.lower()}-model.pt"
-        )
+    print("    Checkpoint name")
+    print("-"*23)
+    for idx, model in enumerate(models):
+        print("{}    {}".format(idx, model))
+
+    index = int(input("Select checkpoint index: "))
+    run[f"models/{models[index]}"].download(dest + f"/{selected.lower()}-model.pt")
+
+    with HiddenPrints():
         run.stop()
 
     print("Model downloaded successfully.")
