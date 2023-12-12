@@ -77,4 +77,3 @@ $ make submission-notebook
 ```
 
 It follows the same steps as described in the *Model submission* section. Once the snapshot is uploaded, it submits the notebook to Kaggle. Then just click “Submit to Competition”.
-
