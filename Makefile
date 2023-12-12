@@ -17,8 +17,12 @@ test: venv
 
 submission: venv
 	.venv/bin/python3 bin/download-model.py
-	.venv/bin/python3 bin/initialize-dataset.py
+	.venv/bin/python3 bin/initialize.py -t dataset
 	.venv/bin/python3 bin/upload-snapshot.py
+
+submission-notebook: submission
+	.venv/bin/python3 bin/initialize.py -t kernel
+	.venv/bin/kaggle kernels push -p ./submission-notebook/
 
 all: lint test
 
