@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 import torch
 import torch.nn as nn
@@ -18,10 +18,8 @@ def train(
     criterion: nn.Module,
     scoring: Callable,
     device: torch.device,
+    config: Any,
     scheduler: Optional[LRScheduler] = None,
-    accumulate: int = 1,
-    threshold: float = 0.5,
-    clipnorm: Optional[float] = 1.0
 ) -> tuple[float, float]:
     """
     Train the model.
@@ -40,14 +38,10 @@ def train(
         Scoring function to evaluate model performance.
     device : torch.device
         The device where the computation should take place.
+    config : Any
+        Configuration class. Should have accumulate, threshold and clipnorm attributes.
     scheduler : LRScheduler, optional
         Learning rate scheduler.
-    accumulate : int, default=1
-        Number of gradient accumulation steps
-    threshold : float, default=0.5
-        Threshold value to binarize prediction masks.
-    clipnorm : float, default=1.0
-        Gradients will be rescaled to have `clipnorm` vector norm.
 
     Returns
     -------
@@ -55,12 +49,16 @@ def train(
         A tuple containing the average loss and score over the training dataset.
 
     """
+    accumulate = config.accumulate
+    threshold = config.threshold
+    clipnorm = config.clipnorm
+
     model.train()
     loss, score = 0.0, 0.0
     scaler = torch.cuda.amp.GradScaler()
     pbar = tqdm(loader, total=len(loader), desc="Train")
     for step, batch in enumerate(pbar):
-        batch = [element.to(device) for element in batch]
+        batch = [b.to(device) for b in batch]
         with torch.autocast(device_type=str(device)):
             output = model.forward(batch[0])
             running_loss = criterion(output, *batch[1:])
@@ -83,13 +81,9 @@ def train(
         running_loss = running_loss * accumulate
 
         loss += running_loss.item()
-        score += running_score[0].item()
+        score += running_score.item()
 
-        pbar.set_postfix(
-            loss=running_loss.item(),
-            vessel_score=running_score[0].item(),
-            kidney_score=running_score[1].item(),
-        )
+        pbar.set_postfix(loss=running_loss.item(), score=running_score.item())
 
     if hasattr(criterion, "step"):
         criterion.step()
