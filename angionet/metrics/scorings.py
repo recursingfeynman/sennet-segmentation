@@ -38,11 +38,9 @@ def confusion_matrix(y_pred: torch.Tensor, y_true: torch.Tensor) -> np.ndarray:
     return y.numpy()
 
 
-def dice(
-    y_pred: torch.Tensor, y_true: torch.Tensor, reduction: bool = True
-) -> torch.Tensor:
+def dice(y_pred, y_true, reduction=True):
     """
-    Calculate Sørensen-Dice coefficient.
+    Calculate Sørensen-Dice coefficient from probabilities.
 
     Parameters
     ----------
@@ -61,10 +59,9 @@ def dice(
     if (y_pred.dim() < 4) or (y_true.dim() < 4):
         raise ValueError("Only BxCxHxW input supported.")
 
-    intersection = (y_pred * y_true).sum((0, 2, 3)).float()
-    union = (y_pred + y_true).sum((0, 2, 3)).float()
+    intersection = (y_pred * y_true).sum((1, 2, 3))
+    union = (y_pred**2 + y_true**2).sum((1, 2, 3))
     score = (2 * intersection + 1e-6) / (union + 1e-6)
-
     return _aggregate(score, reduction)
 
 
