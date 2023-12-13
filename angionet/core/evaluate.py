@@ -15,7 +15,6 @@ def evaluate(
     criterion: nn.Module,
     scoring: Callable,
     device: torch.device,
-    threshold: float = 0.5,
 ) -> tuple[float, float]:
     """
     Evaluate model performance.
@@ -32,8 +31,6 @@ def evaluate(
         Scoring function to evaluate model performance.
     device : torch.device
         The device where the computation should take place.
-    threshold : float, default=0.5
-        Threshold value to binarize prediction masks.
 
     Returns
     -------
@@ -50,7 +47,7 @@ def evaluate(
             output = model.forward(batch[0])
             running_loss = criterion(output, *batch[1:])
 
-        running_score = scoring((output.sigmoid() > threshold).byte(), batch[1].byte())
+        running_score = scoring(output.sigmoid(), batch[1])
         loss += running_loss.item()
         score += running_score.item()
 

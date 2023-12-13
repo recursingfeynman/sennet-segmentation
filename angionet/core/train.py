@@ -39,7 +39,7 @@ def train(
     device : torch.device
         The device where the computation should take place.
     config : Any
-        Configuration class. Should have accumulate, threshold and clipnorm attributes.
+        Configuration class. Should have accumulate and clipnorm attributes.
     scheduler : LRScheduler, optional
         Learning rate scheduler.
 
@@ -50,7 +50,6 @@ def train(
 
     """
     accumulate = config.accumulate
-    threshold = config.threshold
     clipnorm = config.clipnorm
 
     model.train()
@@ -77,7 +76,7 @@ def train(
             if scheduler is not None:
                 scheduler.step()
 
-        running_score = scoring((output.sigmoid() > threshold).byte(), batch[1].byte())
+        running_score = scoring(output.sigmoid(), batch[1])
         running_loss = running_loss * accumulate
 
         loss += running_loss.item()
