@@ -5,6 +5,8 @@
 | Run/Checkpoint |   CV  |  LB | Notes                                                                                        |
 |:--------------:|:-----:|:---:|----------------------------------------------------------------------------------------------|
 |    ANG-25/1    | 0.916 | OOM | per-image standardization, D800-S600, cc3d filtering (t16,c26), vessels * kidney  (threshold 0.2)|
+|    ANG-27/4    | 0.916 | OOM | per-image standardization, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels * kidney  (threshold 0.4)|
+
 
 ## Installation
 
