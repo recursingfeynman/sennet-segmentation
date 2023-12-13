@@ -82,7 +82,7 @@ def combine_patches(
     padded_shape = shape[-2] + top + bottom, shape[-1] + left + right
     locs = calc_locs(padded_shape, dim, stride)
 
-    rec = torch.empty((B, C, *padded_shape)).type_as(patches)
+    rec = torch.zeros((B, C, *padded_shape)).type_as(patches)
     for n in range(N):
         ypos, xpos = locs[n, 0] * stride, locs[n, 1] * stride
 
