@@ -12,6 +12,17 @@
 |    ANG-34/4    | 0.860 | 0.679 | per-image z-scaling, D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.5) |
 
 
+## Todos 💡
+
+- [ ] Train a separate model for kidney prediction.
+- [ ] Test-Time augmentations.
+- [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
+- [ ] Longer training (15+ epochs).
+- [ ] Flood fill / hysteresis thresholding.
+- [ ] Subvolume based normalization.
+- [ ] Implement fast surface dice to spot best model.
+- [ ] Train on kidney_1_dense + kidney_3_dense/sparse.
+
 ## Installation
 
 ```shell
