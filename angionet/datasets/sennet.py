@@ -1,4 +1,5 @@
-from typing import Any, Optional, Sequence
+from itertools import chain
+from typing import Any, Callable, Optional, Sequence
 
 import albumentations as A
 import cv2
@@ -21,7 +22,11 @@ class TrainDataset(Dataset):
         List of file paths to train images.
     transforms : A.BaseCompose
         Albumentations Compose object.
-    normalize : callable, optional
+    class_index : list of ints
+        Class indices.
+    dtms : bool
+        Whether include distance transform maps in outputs or not.
+    normalization : callable, optional
         The normalization function. If not specified, perform min-max normalization
         as default.
     stats : tuple of floats, optional
@@ -32,35 +37,39 @@ class TrainDataset(Dataset):
         self,
         paths: Sequence[str],
         transforms: A.BaseCompose,
-        normalize: Any = None,
-        stats: Optional[tuple] = None,
+        class_index: list[int] = [0],
+        dtms: bool = False,
+        normalization: Optional[Callable] = None,
+        stats: Optional[Sequence[tuple]] = None,
     ):
         self.paths = paths
         self.transforms = transforms
-        self.normalize = normalize if normalize is not None else rescale
+        self.class_index = class_index
+        self.dtms = dtms
         self.stats = stats
+
+        if normalization is None:
+            self.normalization = rescale
+        else:
+            self.normalization = normalization
 
     def __len__(self) -> int:
         return len(self.paths)
 
     def __getitem__(self, index: int) -> tuple[torch.Tensor, ...]:
-        batch = [
-            np.asarray(item, dtype=np.float32)
-            for item in np.load(self.paths[index]).values()
-        ]
+        sample = list(np.load(self.paths[index]).values())
 
-        augs = self.transforms(
-            image=batch[0], masks=[*unbind(np.concatenate(batch[1:]))]
-        )
+        D = 2 if self.dtms else 1
+        masks = np.stack(sample[1:], dtype="float")[:D, self.class_index]
+        masks = chain.from_iterable([unbind(m) for m in unbind(masks)])
+        augs = self.transforms(image=sample[0], masks=list(masks))
 
-        if self.stats is not None:
-            image = self.normalize(augs["image"], self.stats[index])
-        else:
-            image = self.normalize(augs["image"])
+        masks = [torch.stack(augs["masks"][: len(self.class_index)])]
+        if self.dtms:
+            masks.append(torch.stack(augs["masks"][len(self.class_index) :]))
 
-        masks = [torch.stack(augs["masks"][: len(batch[1])])]
-        if len(augs["masks"]) > 2:
-            masks.append(torch.stack(augs["masks"][len(batch[1]) :]))
+        stats = self.stats[index] if self.stats is not None else None
+        image = self.normalization(augs["image"], stats)
 
         return image, *masks
 
