@@ -45,7 +45,7 @@ def dice(y_pred, y_true, reduction=True):
     Parameters
     ----------
     y_pred : torch.Tensor
-        Predicted binary mask.
+        Predicted mask [0, 1].
     y_true : torch.Tensor
         Ground truth.
     reduction : bool, default=True
