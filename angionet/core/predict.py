@@ -29,7 +29,7 @@ def predict(
         Device on which to perform predictions.
     config : any
         The configuration class. Must have dim, stride, padding, batch_size,
-        thresholds and lomc attributes.
+        threshold, prod and lomc attributes.
 
     Returns
     -------
@@ -40,7 +40,8 @@ def predict(
     stride = config.stride
     padding = config.padding
     bs = config.batch_size
-    thresholds = config.thresholds
+    threshold = config.threshold
+    prod = config.prod
     lomc = config.lomc
 
     model.eval()
@@ -57,7 +58,11 @@ def predict(
 
         outputs = outputs.sigmoid().cpu()
         outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
-        outputs = (outputs[:, :, 0:1] * outputs[:, :, 1:2]) > thresholds[0]  # V * K
+
+        if prod: # Vessels * Kidney
+            outputs = (outputs[:, :, 0:1] * outputs[:, :, 1:2]) > threshold
+        else:
+            outputs = (outputs[:, :, 0:1] > threshold)
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
