@@ -75,20 +75,20 @@ def visualize(
     device: str | torch.device = "cpu",
     class_index: int = 0,
     nrow: int = 8,
-    figsize: tuple = (20, 6),
+    figsize: tuple[int, int] = (20, 6),
     return_masked: bool = False,
 ) -> list[np.ndarray] | None:
     clear_output(wait=True)
-    images, masks, _ = next(iter(loader))
+    batch = next(iter(loader))
     model.eval()
     with torch.autocast(device_type=str(device)):
-        preds = model.forward(images.to(device))
+        preds = model.forward(batch[0].to(device))
     preds = (preds.sigmoid() > threshold).cpu()
 
     masked = []
-    for index in range(images.shape[0]):
-        image = images[index].squeeze().numpy()
-        mask = masks[index][class_index].numpy().astype("uint8")
+    for index in range(batch[0].shape[0]):
+        image = batch[0][index].squeeze().numpy()
+        mask = batch[1][index][class_index].numpy().astype("uint8")
         pred = preds[index][class_index].numpy().astype("uint8")
         colorized = torch.from_numpy(colorize(image, mask, pred))
         masked.append(colorized.permute(2, 0, 1))
