@@ -14,8 +14,8 @@ class DiceLoss(BaseLoss):
     ----------
     sigmoid : bool, default=True
         Whether apply sigmoid function or not.
-    class_weights : torch.Tensor, optional
-        Weights for different classes. If 'per_batch', it calculates weights
+    class_weights : list, optional
+        Weights for classes. If 'per_batch', it calculates weights
         per batch based on class frequencies. If 'None', weights equals 1.0.
 
     Attributes
@@ -35,7 +35,7 @@ class DiceLoss(BaseLoss):
     """
 
     def __init__(
-        self, sigmoid: bool = True, class_weights: Optional[torch.Tensor] = None
+        self, sigmoid: bool = True, class_weights: Optional[list] = None
     ):
         super().__init__()
         self.sigmoid = sigmoid
@@ -66,10 +66,10 @@ class DiceLoss(BaseLoss):
 
         if self.class_weights == "per_batch":
             class_weights = self.compute_weights(y_true)
-        elif self.class_weights is not None:
-            class_weights = self.class_weights
+        elif isinstance(self.class_weights, list):
+            class_weights = torch.tensor(self.class_weights, device=y_true.device)
         else:
-            class_weights = torch.tensor([1.0, 1.0], device=y_true.device)
+            class_weights = torch.ones(y_true.size(1), device=y_true.device)
 
         intersection = torch.sum(y_pred * y_true, self.axes)
         intersection = torch.sum(intersection * class_weights, 1)

@@ -32,7 +32,7 @@ class GenSurfLoss(BaseLoss):
         Total training steps for alpha decay.
     sigmoid : bool
         Flag indicating whether apply sigmoid or not.
-    class_weights : torch.Tensor
+    class_weights : list
         Weights for classes.
     axes : tuple
         Axes for sum reduction in loss calculations.
@@ -61,7 +61,7 @@ class GenSurfLoss(BaseLoss):
         region_loss: torch.nn.Module,
         total_steps: int,
         sigmoid: bool = True,
-        class_weights: Optional[torch.Tensor] = None,
+        class_weights: Optional[list] = None,
     ):
         super().__init__()
         self.region_loss = region_loss
@@ -110,10 +110,10 @@ class GenSurfLoss(BaseLoss):
 
         if self.class_weights == "per_batch":
             class_weights = self.compute_weights(y_true)
-        elif self.class_weights is not None:
-            class_weights = self.class_weights
+        elif isinstance(self.class_weights, list):
+            class_weights = torch.tensor(self.class_weights, device=y_true.device)
         else:
-            class_weights = torch.tensor([1.0, 1.0], device=y_true.device)
+            class_weights = torch.ones(y_true.size(1), device=y_true.device)
 
         num = torch.sum((dtms * (1 - (y_true + y_pred))) ** 2, self.axes)
         num = torch.sum(num * class_weights, 1)
