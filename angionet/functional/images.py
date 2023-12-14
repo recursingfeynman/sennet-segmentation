@@ -86,31 +86,6 @@ def cdist(mask: np.ndarray, dtype: Optional[str] = None) -> np.ndarray:
     return dtm
 
 
-def remove_small_objects(mask: np.ndarray, min_size: int) -> np.ndarray:
-    """
-    Remove objects from input mask with size < min_size.
-
-    Parameters
-    ----------
-    mask : np.array
-        Input binary mask {0, 1}.
-    min_size : int
-        Min size of objects to remove.
-
-    Returns
-    -------
-    np.array
-        Processed binary mask.
-    """
-    mask = (mask * 255).astype(np.uint8)
-    num_label, label, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
-    processed = np.zeros_like(mask)
-    for cl in range(1, num_label):
-        if stats[cl, cv2.CC_STAT_AREA] >= min_size:
-            processed[label == cl] = 1
-    return processed
-
-
 def colorize(image: np.ndarray, mask: np.ndarray, preds: np.ndarray) -> np.ndarray:
     image = (image - image.min()) / (image.max() - image.min())
     image = (image * 255).astype("uint8")

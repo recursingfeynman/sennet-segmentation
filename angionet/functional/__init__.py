@@ -1,5 +1,5 @@
 from .extraction import calc_locs, calc_pad, combine_patches, extract_patches
-from .images import cdist, colorize, decode, encode, remove_small_objects
+from .images import cdist, colorize, decode, encode
 from .normalization import rescale, standardize
 
 __all__ = [
@@ -8,7 +8,6 @@ __all__ = [
     "calc_locs",
     "calc_pad",
     "cdist",
-    "remove_small_objects",
     "encode",
     "decode",
     "colorize",
