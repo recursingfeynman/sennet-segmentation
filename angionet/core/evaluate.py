@@ -51,10 +51,7 @@ def evaluate(
         loss += running_loss.item()
         score += running_score.item()
 
-        pbar.set_postfix(
-            loss=running_loss.item(),
-            score=running_score.item()
-        )
+        pbar.set_postfix(loss=running_loss.item(), score=running_score.item())
 
     loss /= len(loader)
     score /= len(loader)

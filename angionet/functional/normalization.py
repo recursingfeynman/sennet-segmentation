@@ -1,5 +1,4 @@
-
-def standardize(image, stats = None):
+def standardize(image, stats=None):
     if stats is not None:
         image = (image - stats[0]) / stats[1]
     else:
@@ -8,7 +7,7 @@ def standardize(image, stats = None):
     return image
 
 
-def rescale(image, stats = None):
+def rescale(image, stats=None):
     if stats is not None:
         image = (image - stats[0]) / (stats[1] - stats[0])
     else:

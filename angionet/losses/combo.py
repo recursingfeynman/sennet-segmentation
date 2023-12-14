@@ -29,9 +29,7 @@ class ComboLoss(nn.Module):
         Computes the combined loss.
     """
 
-    def __init__(
-        self, criterions: list[nn.Module], weights: Optional[list] = None
-    ):
+    def __init__(self, criterions: list[nn.Module], weights: Optional[list] = None):
         super().__init__()
         self.criterions = criterions
 

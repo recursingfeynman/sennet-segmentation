@@ -59,10 +59,10 @@ def predict(
         outputs = outputs.sigmoid().cpu()
         outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
 
-        if prod: # Vessels * Kidney
+        if prod:  # Vessels * Kidney
             outputs = (outputs[:, :, 0:1] * outputs[:, :, 1:2]) > threshold
         else:
-            outputs = (outputs[:, :, 0:1] > threshold)
+            outputs = outputs[:, :, 0:1] > threshold
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)

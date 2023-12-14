@@ -34,9 +34,7 @@ class DiceLoss(BaseLoss):
 
     """
 
-    def __init__(
-        self, sigmoid: bool = True, class_weights: Optional[list] = None
-    ):
+    def __init__(self, sigmoid: bool = True, class_weights: Optional[list] = None):
         super().__init__()
         self.sigmoid = sigmoid
         self.class_weights = class_weights
