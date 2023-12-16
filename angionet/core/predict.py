@@ -43,6 +43,7 @@ def predict(
     threshold = config.threshold
     prod = config.prod
     lomc = config.lomc
+    tta = config.tta
 
     model.eval()
     nthreads = torch.get_num_threads() * 2
@@ -57,6 +58,10 @@ def predict(
             outputs = model.forward(patches.to(device))
 
         outputs = outputs.sigmoid().cpu()
+        if tta is not None:
+            outputs = torch.cat((outputs.unsqueeze(0), tta.predict(patches)), 0)
+            outputs = torch.mean(outputs, 0)
+
         outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
 
         if prod:  # Vessels * Kidney
