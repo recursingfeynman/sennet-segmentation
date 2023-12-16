@@ -24,7 +24,7 @@ class TestTimeAugmentations:
             aug = transform.augment(image)
             with torch.autocast(device_type=image.device.type):
                 aug = self.model.forward(aug)
-            augs.append(transform.disaugment(aug.to(self.device)))
+            augs.append(transform.disaugment(aug.float().to(self.device)))
         return torch.stack(augs)
 
 
