@@ -22,7 +22,7 @@ class TestTimeAugmentations:
         augs = []
         for transform in self.transforms:
             aug = transform.augment(image)
-            with torch.autocast(device_type=str(image.device)):
+            with torch.autocast(device_type=image.device.type):
                 aug = self.model.forward(aug)
             augs.append(transform.disaugment(aug.to(self.device)))
         return torch.stack(augs)
