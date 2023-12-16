@@ -11,12 +11,10 @@ class TestTimeAugmentations:
         self,
         model: nn.Module,
         transforms: list,
-        aggregation: str | Callable = "mean",
         device: str = "cpu",
     ):
         self.model = model
         self.transforms = transforms
-        self.aggregation = aggregation
         self.device = device
 
     @torch.no_grad()
@@ -27,19 +25,7 @@ class TestTimeAugmentations:
             with torch.autocast(device_type=str(image.device)):
                 aug = self.model.forward(aug)
             augs.append(transform.disaugment(aug.to(self.device)))
-
-        return self._aggregate(torch.stack(augs), self.aggregation)
-
-    def _aggregate(self, augs: torch.Tensor, agg: str | Callable) -> torch.Tensor:
-        if agg == "mean":
-            augs = torch.mean(augs.sigmoid(), 0)
-        elif agg == "max":
-            augs = torch.max(augs.sigmoid(), 0).values
-        elif callable(agg):
-            augs = agg(augs.sigmoid())
-        else:
-            raise ValueError(f"{agg} not supported. Available: mean, max, callable.")
-        return augs
+        return torch.stack(augs)
 
 
 class TransformWrapper:
