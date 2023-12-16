@@ -37,7 +37,7 @@ class TransformWrapper:
         image = self.transform(image)
         return image
 
-    def disugment(self, image: torch.Tensor) -> torch.Tensor:
+    def disaugment(self, image: torch.Tensor) -> torch.Tensor:
         if self.inverse is not None:
             image = self.inverse(image)
         return image
@@ -48,7 +48,7 @@ class HorizontalFlip:
         image = F.hflip(image)
         return image
 
-    def disugment(self, image: torch.Tensor) -> torch.Tensor:
+    def disaugment(self, image: torch.Tensor) -> torch.Tensor:
         image = F.hflip(image)
         return image
 
@@ -58,7 +58,7 @@ class VerticalFlip:
         image = F.vflip(image)
         return image
 
-    def disugment(self, image: torch.Tensor) -> torch.Tensor:
+    def disaugment(self, image: torch.Tensor) -> torch.Tensor:
         image = F.vflip(image)
         return image
 
@@ -74,6 +74,6 @@ class Rotate90:
         image = F.rotate(image, -self.angle)
         return image
 
-    def disugment(self, image: torch.Tensor, **kwargs) -> torch.Tensor:
+    def disaugment(self, image: torch.Tensor, **kwargs) -> torch.Tensor:
         image = F.rotate(image, self.angle)
         return image
