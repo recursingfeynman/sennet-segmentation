@@ -59,7 +59,7 @@ def predict(
 
         outputs = outputs.sigmoid().cpu()
         if tta is not None:
-            outputs = torch.cat((outputs.unsqueeze(0), tta.predict(patches)), 0)
+            outputs = torch.cat((outputs[None], tta.predict(patches.to(device))), 0)
             outputs = torch.mean(outputs, 0)
 
         outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
