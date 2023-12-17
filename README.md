@@ -11,6 +11,7 @@
 |    ANG-27/4    | 0.913 | 0.686 | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels (threshold 0.2) |
 |    ANG-34/4    | 0.860 | 0.679 | per-image z-scaling, D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.5) |
 |    ANG-34/4    | 0.860 | 0.694 | per-image z-scaling, TTA (rotate90, hflip, vflip), D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.5) |
+|    ANG-34/4    | 0.860 | 0.699 | per-image z-scaling, TTA (rotate90, hflip, vflip), D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.2) |
 
 
 ## Todos 💡
