@@ -55,7 +55,7 @@ class TrainDataset(Dataset):
         sample = list(np.load(self.paths[index]).values())
 
         D = 2 if self.dtms else 1
-        masks = np.stack(sample[1:])[:D, self.class_index]
+        masks = np.stack(sample[1:], dtype = 'float32')[:D, self.class_index]
         masks = chain.from_iterable([unbind(m) for m in unbind(masks)])
         augs = self.transforms(image=sample[0], masks=list(masks))
 
