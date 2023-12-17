@@ -55,13 +55,13 @@ class TrainDataset(Dataset):
         sample = list(np.load(self.paths[index]).values())
 
         D = 2 if self.dtms else 1
-        masks = np.stack(sample[1:], dtype="float")[:D, self.class_index]
+        masks = np.stack(sample[1:])[:D, self.class_index]
         masks = chain.from_iterable([unbind(m) for m in unbind(masks)])
         augs = self.transforms(image=sample[0], masks=list(masks))
 
-        masks = [torch.stack(augs["masks"][: len(self.class_index)])]
+        masks = [torch.stack(augs["masks"][: len(self.class_index)]).float()]
         if self.dtms:
-            masks.append(torch.stack(augs["masks"][len(self.class_index) :]))
+            masks.append(torch.stack(augs["masks"][len(self.class_index) :]).float())
 
         if self.normalization is not None:
             stats = self.stats[index] if self.stats is not None else None
