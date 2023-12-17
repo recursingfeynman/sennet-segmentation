@@ -3,10 +3,11 @@ from typing import Any
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from ..functional import combine_patches, extract_patches
+from ..functional import combine_patches, extract_patches, rescale
 
 
 @torch.no_grad()
@@ -15,6 +16,7 @@ def predict(
     dataset: Dataset,
     device: str | torch.device,
     config: Any,
+    kidney_model: nn.Module = None
 ) -> np.ndarray:
     """
     Predict segmentation masks.
@@ -30,6 +32,8 @@ def predict(
     config : any
         The configuration class. Must have dim, stride, padding, batch_size,
         threshold, prod and lomc attributes.
+    kidney_model : nn.Module
+        Model to predict kidney.
 
     Returns
     -------
@@ -62,15 +66,31 @@ def predict(
             outputs = torch.cat((outputs[None], tta.predict(patches.to(device))), 0)
             outputs = torch.mean(outputs, 0)
 
-        outputs = outputs.contiguous().view(B, -1, outputs.size(1), dim, dim)
+        outputs = outputs.contiguous().view(B, -1, 1, dim, dim)
 
-        if prod:  # Vessels * Kidney
-            outputs = (outputs[:, :, 0:1] * outputs[:, :, 1:2]) > threshold
+        if not prod:
+            outputs = outputs > threshold
         else:
-            outputs = outputs[:, :, 0:1] > threshold
+            kidneys = find_kidney(kidney_model, images, 512, device)
+            patches = extract_patches(kidneys, dim, stride, padding = 'constant')
+            outputs = (outputs * kidneys) > threshold
+            del kidneys, patches
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
         volume.extend(outputs.squeeze(1).numpy())
 
     return np.stack(volume)
+
+
+def find_kidney(model, images, dim, device):
+    model.eval()
+
+    H, W = images.shape[-2:]
+    images = torch.stack([rescale(img) for img in images])
+    images = F.resize(images, (dim, dim))
+
+    with torch.autocast(device_type=str(device)):
+        kidneys = model.forward(images.to(device))
+
+    return F.resize(kidneys.sigmoid().cpu(), (H, W))
