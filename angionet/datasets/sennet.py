@@ -27,8 +27,7 @@ class TrainDataset(Dataset):
     dtms : bool
         Whether include distance transform maps in outputs or not.
     normalization : callable, optional
-        The normalization function. If not specified, perform min-max normalization
-        as default.
+        The normalization function.
     stats : tuple of floats, optional
         Normalization statistics.
     """
@@ -47,11 +46,7 @@ class TrainDataset(Dataset):
         self.class_index = class_index
         self.dtms = dtms
         self.stats = stats
-
-        if normalization is None:
-            self.normalization = rescale
-        else:
-            self.normalization = normalization
+        self.normalization = normalization
 
     def __len__(self) -> int:
         return len(self.paths)
@@ -68,8 +63,11 @@ class TrainDataset(Dataset):
         if self.dtms:
             masks.append(torch.stack(augs["masks"][len(self.class_index) :]))
 
-        stats = self.stats[index] if self.stats is not None else None
-        image = self.normalization(augs["image"], stats)
+        if self.normalization is not None:
+            stats = self.stats[index] if self.stats is not None else None
+            image = self.normalization(augs["image"], stats)
+        else:
+            image = augs['image']
 
         return image, *masks
 
