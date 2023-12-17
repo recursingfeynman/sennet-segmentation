@@ -16,7 +16,7 @@ def predict(
     dataset: Dataset,
     device: str | torch.device,
     config: Any,
-    kidney_model: nn.Module = None
+    kidney_model: nn.Module,
 ) -> np.ndarray:
     """
     Predict segmentation masks.
@@ -72,9 +72,8 @@ def predict(
             outputs = outputs > threshold
         else:
             kidneys = find_kidney(kidney_model, images, 512, device)
-            patches = extract_patches(kidneys, dim, stride, padding = 'constant')
+            kidneys = extract_patches(kidneys, dim, stride, padding="constant")
             outputs = (outputs * kidneys) > threshold
-            del kidneys, patches
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
