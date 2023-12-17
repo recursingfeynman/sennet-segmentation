@@ -16,7 +16,7 @@
 
 ## Todos 💡
 
-- [ ] Train a separate model for kidney prediction.
+- [x] Train a separate model for kidney prediction.
 - [x] Test-Time augmentations.
 - [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
 - [ ] Longer training (15+ epochs).
