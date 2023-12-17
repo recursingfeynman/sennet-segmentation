@@ -4,14 +4,17 @@
 
 | Run/Checkpoint |   CV  |   LB  | Notes |
 |:--------------:|:-----:|:-----:|-------|
-|    ANG-25/1    | 0.916 |  OOM  | per-image z-scaling, D800-S600, cc3d filtering (t16,c26), vessels * kidney (threshold 0.2) |
-|    ANG-27/4    | 0.913 |  OOM  | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels * kidney  (threshold 0.4) |
+|    ANG-25/1    | 0.916 |  OOM  | per-image z-scaling, D800-S600, cc3d filtering (t16,c26), vessels * kidney (2cls, threshold 0.2) |
+|    ANG-27/4    | 0.913 |  OOM  | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels * kidney  (2cls, threshold 0.4) |
 |    ANG-27/4    | 0.913 | 0.634 | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels (threshold 0.9) |
 |    ANG-27/4    | 0.913 | 0.671 | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels (threshold 0.5) |
 |    ANG-27/4    | 0.913 | 0.686 | per-image z-scaling, ElasticTransform, D800-S600, cc3d filtering (t16,c26), vessels (threshold 0.2) |
 |    ANG-34/4    | 0.860 | 0.679 | per-image z-scaling, D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.5) |
 |    ANG-34/4    | 0.860 | 0.694 | per-image z-scaling, TTA (rotate90, hflip, vflip), D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.5) |
 |    ANG-34/4    | 0.860 | 0.699 | per-image z-scaling, TTA (rotate90, hflip, vflip), D800-S600, cc3d filtering (t4,c26), vessels (threshold 0.2) |
+|    ANG-34/4    | 0.860 | 0.724 | per-image z-scaling, TTA (2x rotate90, hflip, vflip), D800-S600, w/o postprocessing, vessels * kidney (1/1 cls, threshold 0.5) |
+|    ANG-34/4    | 0.860 | 0.730 | per-image z-scaling, TTA (2x rotate90, hflip, vflip), D800-S600, w/o postprocessing, vessels * kidney (1/1 cls threshold 0.1) |
+|    ANG-47/3    | 0.830 | 0.690 | full-res, z-scaling, TTA (2x rotate90, hflip, vflip), w/o postprocessing, vessels (1cls threshold 0.2) |
 
 
 ## Todos 💡
