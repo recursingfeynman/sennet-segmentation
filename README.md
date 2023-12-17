@@ -17,7 +17,7 @@
 ## Todos 💡
 
 - [ ] Train a separate model for kidney prediction.
-- [ ] Test-Time augmentations.
+- [x] Test-Time augmentations.
 - [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
 - [ ] Longer training (15+ epochs).
 - [ ] Flood fill / hysteresis thresholding.
