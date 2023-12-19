@@ -13,6 +13,7 @@ packages = ["angionet"]
 
 [tool.codespell]
 skip = "*.ipynb"
+ignore-words-list = "fpr"
 
 
 [tool.pytest.ini_options]
