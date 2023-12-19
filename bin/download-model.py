@@ -28,7 +28,7 @@ def display_runs(runs, nrows):
     entry = "{} {:>18} {: >15} {: >23} {: >14}"
     print(title)
     print("-" * 82)
-    for index, row in runs.iterrows():
+    for index, row in runs.iloc[-min(nrows, len(runs)):].iterrows():
         timestamp = row["Timestamp"]
         id_ = row["ID"]
         owner = row["Owner"]
@@ -69,7 +69,9 @@ if __name__ == "__main__":
     dest = "./submission"
     os.makedirs(dest, exist_ok=True)
     with HiddenPrints():
-        run = neptune.init_run(with_id=selected, project=PROJECT, api_token=TOKEN)
+        run = neptune.init_run(with_id=selected, project=PROJECT, api_token=TOKEN,
+                               capture_hardware_metrics=False, capture_stderr=False,
+                               capture_stdout=False, capture_traceback=False)
         if "models" not in run.get_structure().keys():
             raise FileNotFoundError("Selected run does not contain any checkpoints")
 
