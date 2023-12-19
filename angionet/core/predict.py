@@ -18,9 +18,7 @@ def predict(
     dim: int,
     stride: int,
     padding: str,
-    bs: int,
-    threshold: float,
-    lomc: bool,
+    batch_size: int,
     tta: Optional[TestTimeAugmentations] = None,
     device: str | torch.device = "cpu",
     kidney_model: Optional[nn.Module] = None,
@@ -40,12 +38,8 @@ def predict(
         Stride value for patch extraction.
     padding : str
         Padding mode.
-    bs : int
+    batch_size : int
         Batch size.
-    threshold : float
-        Threshold value to binarize predictions.
-    lomc : bool
-        Whether to use `logical or mask combination`.
     tta : callable, optional
         Test time augmentations class.
     device : str or torch.device
@@ -56,12 +50,12 @@ def predict(
     Returns
     -------
     np.array
-        Predicted volume [D, H, W].
+        Predicted probabilities [D, H, W].
     """
     model.eval()
     volume = []
     nthreads = torch.get_num_threads() * 2
-    loader = DataLoader(dataset, batch_size=bs, num_workers=nthreads)
+    loader = DataLoader(dataset, batch_size=batch_size, num_workers=nthreads)
     for images in tqdm(loader, desc="Processing"):
         B, C, H, W = images.shape
         patches = extract_patches(images, dim, stride, padding)
@@ -80,12 +74,10 @@ def predict(
         if kidney_model is not None:
             kidneys = find_kidney(kidney_model, images, 512, device)
             kidneys = extract_patches(kidneys, dim, stride, padding="constant")
-            outputs = (outputs * kidneys) > threshold
-        else:
-            outputs = outputs > threshold
+            outputs = outputs * kidneys
 
         # Reconstruct original images
-        outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
+        outputs = combine_patches((H, W), outputs.float(), dim, stride, lomc=False)
         volume.extend(outputs.squeeze(1).numpy())
 
     return np.stack(volume)
