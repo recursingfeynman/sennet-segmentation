@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from ..functional import decode, rescale
+from ..functional import decode
 from ..utils import unbind
 
 
@@ -55,7 +55,7 @@ class TrainDataset(Dataset):
         sample = list(np.load(self.paths[index]).values())
 
         D = 2 if self.dtms else 1
-        masks = np.stack(sample[1:], dtype = 'float32')[:D, self.class_index]
+        masks = np.stack(sample[1:], dtype="float32")[:D, self.class_index]
         masks = chain.from_iterable([unbind(m) for m in unbind(masks)])
         augs = self.transforms(image=sample[0], masks=list(masks))
 
@@ -67,7 +67,7 @@ class TrainDataset(Dataset):
             stats = self.stats[index] if self.stats is not None else None
             image = self.normalization(augs["image"], stats)
         else:
-            image = augs['image']
+            image = augs["image"]
 
         return image, *masks
 
@@ -82,38 +82,38 @@ class InferenceDataset(Dataset):
         List of file paths to test images.
     transforms : A.BaseCompose
         Albumentations Compose with image augmentations.
-    normalize : callable, optional
-        The normalization function. If not specified, perform min-max normalization
-        as default.
+    normalization : callable, optional
+        The normalization function.
     stats : tuple of floats
         Normalization statistics.
+    imread : any, default=cv2.IMREAD_GRAYSCALE
+        Imread mode for cv2.imread(...).
     """
 
     def __init__(
         self,
         paths: Sequence[str],
         transforms: A.BaseCompose,
-        normalize: Any = None,
+        normalization: Optional[Callable] = None,
         stats: Optional[tuple] = None,
+        imread: Any = cv2.IMREAD_GRAYSCALE
     ):
         self.paths = paths
         self.transforms = transforms
-        self.normalize = normalize if normalize is not None else rescale
+        self.normalization = normalization
         self.stats = stats
+        self.imread = imread
 
     def __len__(self) -> int:
         return len(self.paths)
 
     def __getitem__(self, index: int) -> torch.Tensor:
-        image = cv2.imread(self.paths[index], cv2.IMREAD_GRAYSCALE)
-        image = np.asarray(image, np.float32)
+        image = cv2.imread(self.paths[index], self.imread)
+        image = self.transforms(image=np.asarray(image, np.uint8))["image"]
 
-        image = self.transforms(image=image)["image"]
-
-        if self.stats is not None:
-            image = self.normalize(image, self.stats[index])
-        else:
-            image = self.normalize(image)
+        if self.normalization is not None:
+            stats = self.stats[index] if self.stats is not None else self.stats
+            image = self.normalization(image, stats)
 
         return image
 
