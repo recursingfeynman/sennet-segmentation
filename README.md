@@ -16,9 +16,9 @@
 |    ANG-34/4    | 0.860 | 0.730 | patches, z-scaling, TTA (2x rotate90, hflip, vflip), D800-S600, w/o postprocessing, vessels * kidney (threshold 0.1) |
 |    ANG-47/3    | 0.830 | 0.690 | full, z-scaling, TTA (2x rotate90, hflip, vflip), w/o postprocessing, vessels (1cls threshold 0.2) |
 |    ANG-65/5    | 0.804 | 0.663 | patches, WNet, z-scaling, TTA (2x rotate90, hflip, vflip), w/o postprocessing, vessels * kidney (threshold 0.2) |
-|    ANG-71/8    | 0.904 |   -   | patches, rescale, +kidney-3-sparse, D800-S600, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.2, 0.6)|
-|    ANG-71/8    | 0.904 |   -   | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.1, 0.4)|
-|    ANG-71/8    | 0.904 |   -   | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (threshold 0.2) |
+|    ANG-71/8    | 0.904 | 0.704 | patches, rescale, +kidney-3-sparse, D800-S600, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.2, 0.6)|
+|    ANG-71/8    | 0.904 | 0.708 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.1, 0.4)|
+|    ANG-71/8    | 0.904 | 0.703 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (threshold 0.2) |
 
 ## Todos 💡
 
