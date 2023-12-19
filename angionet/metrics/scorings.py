@@ -1,10 +1,7 @@
 import numpy as np
 import torch
 
-from ._surface_distance import (
-    compute_surface_dice_at_tolerance,
-    compute_surface_distances,
-)
+from ._lookup_tables import create_table_neighbour_code_to_surface_area
 
 
 def confusion_matrix(y_pred: torch.Tensor, y_true: torch.Tensor) -> np.ndarray:
@@ -95,57 +92,60 @@ def jaccard(
     return _aggregate(score, reduction)
 
 
-def surface_dice(
-    y_pred: np.ndarray,
-    y_true: np.ndarray,
-    tolerance: float = 0.0,
-    spacing: tuple[int, ...] = (1, 1),
-) -> float:
-    """
-    Compute the surface Dice coefficient at a specified tolerance.
+def compute_area(y, unfold, area):
+    yy = torch.stack(y, dim=0).to(torch.float16).unsqueeze(0)
+    cubes_float = unfold(yy).squeeze(0)
+    cubes_byte = torch.zeros(cubes_float.size(1), dtype=torch.int32)
+    for k in range(8):
+        cubes_byte += cubes_float[k, :].to(torch.int32) << k
+    return area[cubes_byte]
 
-    See https://github.com/google-deepmind/surface-distance.
+
+def surface_dice(y_pred: torch.Tensor, y_true: torch.Tensor) -> float:
+    """
+    Compute surface dice coefficient.
 
     Parameters
     ----------
-    y_pred : np.array
-        Predicted binary mask {0, 1}.
-    y_true : np.array
-        Ground truth.
-    tolerance : float, default=0.0
-        The tolerance in mm.
-    spacing : tuple[int, ...], default=(1, 1)
-        Voxel spacing in x0 anx x1 (resp. x0, x1 and x2) directions.
+    y_pred : torch.Tensor
+        Predicted volume [D, H, W]
+    y_true : torch.Tensor
+        Ground truth [D, H, W]
 
     Returns
     -------
     float
-        Surface Dice coefficient.
+        Calculated surface dice coefficient
+
+    References
+    ----------
+    [1] https://www.kaggle.com/code/junkoda/fast-surface-dice-computation/notebook.
     """
-    assert y_true.ndim == 4 or y_pred.ndim == 4, "Only BxCxHxW input supported."
+    area = create_table_neighbour_code_to_surface_area((1, 1, 1))
+    unfold = torch.nn.Unfold(kernel_size=(2, 2), padding=1)
 
-    y_pred = np.asarray(y_pred, dtype="bool")
-    y_true = np.asarray(y_true, dtype="bool")
+    D, H, W = y_true.shape
+    y0 = y0_pred = torch.zeros((H, W), dtype=torch.uint8)
+    intersection, union = 0, 0
 
-    if len(spacing) == 2:
-        B, C = y_true.shape[:2]
-        scores = np.empty((B, C))
-        for b in range(B):
-            for c in range(C):
-                dists = compute_surface_distances(y_pred[b, c], y_true[b, c], spacing)
-                scores[b, c] = compute_surface_dice_at_tolerance(dists, tolerance)
-        scores = np.mean(scores, axis=0)
-    elif len(spacing) == 3:
-        B = y_true.shape[0]
-        scores = np.empty((B,))
-        for b in range(B):
-            dists = compute_surface_distances(y_pred[b], y_true[b], spacing)
-            scores[b] = compute_surface_dice_at_tolerance(dists, tolerance)
-        scores = np.mean(scores)
-    else:
-        raise ValueError("Only 2- or 3-dim spacing supported.")
+    for i in range(D + 1):
+        if i < D:
+            y1, y1_pred = y_true[i], y_pred[i]
+        else:
+            y1 = y1_pred = torch.zeros((H, W), dtype=torch.uint8)
 
-    return scores
+        area_pred = compute_area([y0_pred, y1_pred], unfold, area)
+        area_true = compute_area([y0, y1], unfold, area)
+        idx = torch.logical_and(area_pred > 0, area_true > 0)
+
+        intersection += area_pred[idx].sum() + area_true[idx].sum()
+        union += area_pred.sum() + area_true.sum()
+
+        y0 = y1
+        y0_pred = y1_pred
+
+    dice = intersection / torch.clamp(union, 1e-6)
+    return dice.item()
 
 
 def _aggregate(score: torch.Tensor, reduction: bool) -> torch.Tensor:
