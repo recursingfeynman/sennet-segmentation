@@ -1,23 +1,5 @@
 import torch
 
-
-def create_table_neighbour_code_to_surface_area(spacing_mm):
-    neighbour_code_to_surface_area = torch.zeros([256])
-    for code in range(256):
-        normals = torch.tensor(_NEIGHBOUR_CODE_TO_NORMALS[code])
-        sum_area = 0
-        for normal_idx in range(normals.shape[0]):
-            n = torch.zeros(3)
-            n[0] = normals[normal_idx, 0] * spacing_mm[1] * spacing_mm[2]
-            n[1] = normals[normal_idx, 1] * spacing_mm[0] * spacing_mm[2]
-            n[2] = normals[normal_idx, 2] * spacing_mm[0] * spacing_mm[1]
-            area = torch.linalg.norm(n)
-            sum_area += area
-        neighbour_code_to_surface_area[code] = sum_area
-
-    return neighbour_code_to_surface_area
-
-
 _NEIGHBOUR_CODE_TO_NORMALS = [
     [[0, 0, 0]],
     [[0.125, 0.125, 0.125]],
@@ -556,3 +538,20 @@ _NEIGHBOUR_CODE_TO_NORMALS = [
     [[0.125, 0.125, 0.125]],
     [[0, 0, 0]],
 ]
+
+
+def create_table_neighbour_code_to_surface_area(spacing_mm):
+    neighbour_code_to_surface_area = torch.zeros([256])
+    for code in range(256):
+        normals = torch.tensor(_NEIGHBOUR_CODE_TO_NORMALS[code])
+        sum_area = 0
+        for normal_idx in range(normals.shape[0]):
+            n = torch.zeros(3)
+            n[0] = normals[normal_idx, 0] * spacing_mm[1] * spacing_mm[2]
+            n[1] = normals[normal_idx, 1] * spacing_mm[0] * spacing_mm[2]
+            n[2] = normals[normal_idx, 2] * spacing_mm[0] * spacing_mm[1]
+            area = torch.linalg.norm(n)
+            sum_area += area
+        neighbour_code_to_surface_area[code] = sum_area
+
+    return neighbour_code_to_surface_area
