@@ -17,5 +17,5 @@ repos:
     rev: v2.2.4
     hooks:
     - id: codespell
-      args: [ -w ]
+      args: [ --config ./pyproject.toml -w]
 
