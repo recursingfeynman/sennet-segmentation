@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import torch
@@ -16,7 +16,7 @@ def predict(
     dataset: Dataset,
     device: str | torch.device,
     config: Any,
-    kidney_model: nn.Module,
+    kidney_model: Optional[nn.Module],
 ) -> np.ndarray:
     """
     Predict segmentation masks.
@@ -31,8 +31,8 @@ def predict(
         Device on which to perform predictions.
     config : any
         The configuration class. Must have dim, stride, padding, batch_size,
-        threshold, prod and lomc attributes.
-    kidney_model : nn.Module
+        threshold and lomc attributes.
+    kidney_model : nn.Module, optional
         Model to predict kidney.
 
     Returns
@@ -45,7 +45,6 @@ def predict(
     padding = config.padding
     bs = config.batch_size
     threshold = config.threshold
-    prod = config.prod
     lomc = config.lomc
     tta = config.tta
 
@@ -68,12 +67,12 @@ def predict(
 
         outputs = outputs.contiguous().view(B, -1, 1, dim, dim)
 
-        if not prod:
-            outputs = outputs > threshold
-        else:
+        if kidney_model is not None:
             kidneys = find_kidney(kidney_model, images, 512, device)
             kidneys = extract_patches(kidneys, dim, stride, padding="constant")
             outputs = (outputs * kidneys) > threshold
+        else:
+            outputs = outputs > threshold
 
         # Reconstruct original images
         outputs = combine_patches((H, W), outputs.byte(), dim, stride, lomc)
