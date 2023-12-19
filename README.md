@@ -23,9 +23,10 @@
 - [x] Test-Time augmentations.
 - [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
 - [ ] Longer training (15+ epochs).
-- [ ] Flood fill / hysteresis thresholding.
+- [ ] Flood fill
+- [x] Hysteresis thresholding.
 - [ ] Subvolume based normalization.
-- [ ] Implement fast surface dice to spot best model.
+- [x] Implement fast surface dice to spot best model.
 - [ ] Train on kidney_1_dense + kidney_3_dense/sparse.
 
 ## Installation
