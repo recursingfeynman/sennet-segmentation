@@ -12,6 +12,7 @@ def summary(y_pred: torch.Tensor, y_true: torch.Tensor) -> dict[str, float]:
     scores["recall"] = smp.metrics.recall(*cm, reduction="micro").item()
     scores["specificity"] = smp.metrics.specificity(*cm, reduction="micro").item()
     scores["f1"] = smp.metrics.f1_score(*cm, reduction="micro").item()
+    scores["fpr"] = smp.metrics.false_positive_rate(*cm, reduction="micro").item()
     scores["surface-dice"] = surface_dice(y_pred, y_true)
     return scores
 
