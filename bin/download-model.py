@@ -25,14 +25,14 @@ class HiddenPrints:
 
 def display_runs(runs, nrows):
     title = "\t" + "       |       ".join(runs.columns)
-    entry = "{} {:>18} {: >15} {: >23} {: >14}"
+    entry = "{} {:>18} {: >15} {: >23} {: >17}"
     print(title)
-    print("-" * 82)
-    for index, row in runs.iloc[-min(nrows, len(runs)):].iterrows():
+    print("-" * 87)
+    for index, row in runs.iloc[-min(nrows, len(runs)) :].iterrows():
         timestamp = row["Timestamp"]
         id_ = row["ID"]
         owner = row["Owner"]
-        score = str(round(row["Score"], 4)).replace("nan", "-\t\t\t")
+        score = str(round(row["Highest score"], 4)).replace("nan", "-\t\t\t")
         print(entry.format(index, timestamp, id_, owner, score))
 
         if index == nrows - 1:
@@ -46,32 +46,38 @@ if __name__ == "__main__":
             project=PROJECT, api_token=TOKEN, mode="read-only"
         )
         runs = project.fetch_runs_table(
-            columns=["sys/creation_time", "sys/id", "sys/owner", "test/score"]
+            columns=["sys/creation_time", "sys/id", "sys/owner", "test/highest-score"]
         ).to_pandas()
 
         project.stop()
 
-    runs.columns = ["Timestamp", "ID", "Owner", "Score"]
+    runs.columns = ["Timestamp", "ID", "Owner", "Highest score"]
     runs["Timestamp"] = runs["Timestamp"].apply(
         pd.to_datetime, format="%Y-%m-%dT%H:%M:%S.%fZ"
     )
     runs["Timestamp"] = runs["Timestamp"].dt.strftime("%d-%m-%Y %H:%M")
     runs = runs.sort_values("Timestamp")
 
-    display_runs(runs, 25)
+    display_runs(runs, 15)
 
-    selected = input("Enter run ID: ")
+    run_id = input("Enter run ID: ")
 
-    if selected not in runs["ID"].tolist():
-        raise FileNotFoundError(f"Incorrect run ID: {selected}")
+    if run_id not in runs["ID"].tolist():
+        raise FileNotFoundError(f"Incorrect run ID: {run_id}")
 
     # Download latest checkpoint
     dest = "./submission"
     os.makedirs(dest, exist_ok=True)
     with HiddenPrints():
-        run = neptune.init_run(with_id=selected, project=PROJECT, api_token=TOKEN,
-                               capture_hardware_metrics=False, capture_stderr=False,
-                               capture_stdout=False, capture_traceback=False)
+        run = neptune.init_run(
+            with_id=run_id,
+            project=PROJECT,
+            api_token=TOKEN,
+            capture_hardware_metrics=False,
+            capture_stderr=False,
+            capture_stdout=False,
+            capture_traceback=False,
+        )
         if "models" not in run.get_structure().keys():
             raise FileNotFoundError("Selected run does not contain any checkpoints")
 
@@ -81,12 +87,13 @@ if __name__ == "__main__":
     models = list(run.get_structure()["models"].keys())
 
     print("    Checkpoint name")
-    print("-"*23)
+    print("-" * 23)
     for idx, model in enumerate(models):
         print("{}    {}".format(idx, model))
 
-    index = int(input("Select checkpoint index: "))
-    run[f"models/{models[index]}"].download(dest + f"/{selected.lower()}-model.pt")
+    ckpt = int(input("Select checkpoint index: "))
+    model = dest + f"/{run_id.lower()}-c{ckpt}-model.pt"
+    run[f"models/{models[ckpt]}"].download(model)
 
     with HiddenPrints():
         run.stop()
