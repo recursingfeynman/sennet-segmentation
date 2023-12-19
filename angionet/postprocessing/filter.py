@@ -1,6 +1,30 @@
 import cc3d
 import cv2
 import numpy as np
+from scipy.ndimage import binary_fill_holes
+from skimage.filters import apply_hysteresis_threshold
+
+
+def apply_threshold(
+    volume: np.ndarray, lo: float, hi: float, chunk: int = 32
+) -> np.ndarray:
+    D, H, W = volume.shape
+    predict = np.zeros((D, H, W), dtype="uint8")
+    for i in range(0, chunk, D // chunk):
+        predict[i : i + chunk] = np.maximum(
+            apply_hysteresis_threshold(volume[i : i + chunk], lo, hi),
+            predict[i : i + chunk],
+        )
+    return predict
+
+
+def fill_holes(volume: np.ndarray, chunk: int = 32) -> np.ndarray:
+    D, H, W = volume.shape
+    predict = np.zeros((D, H, W), dtype="bool")
+    for i in range(0, chunk, D // chunk):
+        predict[i : i + chunk] = binary_fill_holes(volume[i : i + chunk])
+
+    return np.asarray(predict, dtype="uint8")
 
 
 def remove_small_objects(mask: np.ndarray, min_size: int) -> np.ndarray:
