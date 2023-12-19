@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
 import torch
@@ -8,15 +8,22 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from ..functional import combine_patches, extract_patches, rescale
+from ..postprocessing import TestTimeAugmentations
 
 
 @torch.no_grad()
 def predict(
     model: nn.Module,
     dataset: Dataset,
-    device: str | torch.device,
-    config: Any,
-    kidney_model: Optional[nn.Module],
+    dim: int,
+    stride: int,
+    padding: str,
+    bs: int,
+    threshold: float,
+    lomc: bool,
+    tta: Optional[TestTimeAugmentations] = None,
+    device: str | torch.device = "cpu",
+    kidney_model: Optional[nn.Module] = None,
 ) -> np.ndarray:
     """
     Predict segmentation masks.
@@ -27,11 +34,22 @@ def predict(
         Trained model.
     dataset : Dataset
         Inference dataset.
+    dim : int
+        Window size.
+    stride : int
+        Stride value for patch extraction.
+    padding : str
+        Padding mode.
+    bs : int
+        Batch size.
+    threshold : float
+        Threshold value to binarize predictions.
+    lomc : bool
+        Whether to use `logical or mask combination`.
+    tta : callable, optional
+        Test time augmentations class.
     device : str or torch.device
         Device on which to perform predictions.
-    config : any
-        The configuration class. Must have dim, stride, padding, batch_size,
-        threshold and lomc attributes.
     kidney_model : nn.Module, optional
         Model to predict kidney.
 
@@ -40,17 +58,9 @@ def predict(
     np.array
         Predicted volume [D, H, W].
     """
-    dim = config.dim
-    stride = config.stride
-    padding = config.padding
-    bs = config.batch_size
-    threshold = config.threshold
-    lomc = config.lomc
-    tta = config.tta
-
     model.eval()
-    nthreads = torch.get_num_threads() * 2
     volume = []
+    nthreads = torch.get_num_threads() * 2
     loader = DataLoader(dataset, batch_size=bs, num_workers=nthreads)
     for images in tqdm(loader, desc="Processing"):
         B, C, H, W = images.shape
@@ -59,8 +69,8 @@ def predict(
 
         with torch.autocast(device_type=str(device)):
             outputs = model.forward(patches.to(device))
-
         outputs = outputs.sigmoid().cpu()
+
         if tta is not None:
             outputs = torch.cat((outputs[None], tta.predict(patches.to(device))), 0)
             outputs = torch.mean(outputs, 0)
