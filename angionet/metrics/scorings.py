@@ -1,7 +1,19 @@
 import numpy as np
+import segmentation_models_pytorch as smp
 import torch
 
 from ._lookup_tables import create_table_neighbour_code_to_surface_area
+
+
+def summary(y_pred: torch.Tensor, y_true: torch.Tensor) -> dict[str, float]:
+    scores = {}
+    cm = smp.metrics.get_stats(y_pred[:, None], y_true[:, None], mode="binary")
+    scores["precision"] = smp.metrics.precision(*cm, reduction="micro").item()
+    scores["recall"] = smp.metrics.recall(*cm, reduction="micro").item()
+    scores["specificity"] = smp.metrics.specificity(*cm, reduction="micro").item()
+    scores["f1"] = smp.metrics.f1_score(*cm, reduction="micro").item()
+    scores["surface-dice"] = surface_dice(y_pred, y_true)
+    return scores
 
 
 def confusion_matrix(y_pred: torch.Tensor, y_true: torch.Tensor) -> np.ndarray:
