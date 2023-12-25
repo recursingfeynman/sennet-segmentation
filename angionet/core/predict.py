@@ -88,7 +88,7 @@ def find_kidney(model, images, dim, device):
 
     H, W = images.shape[-2:]
     images = torch.stack([rescale(img) for img in images])
-    images = F.resize(images, (dim, dim))
+    images = F.resize(images, (dim, dim), antialias=False)
 
     with torch.autocast(device_type=str(device)):
         kidneys = model.forward(images.to(device))
