@@ -71,7 +71,7 @@ def predict(
                 with torch.autocast(device_type=str(device)):
                     out = model.forward(group.to(device))
                 output.append(out.sigmoid().cpu())
-            output = tta.disaugment(torch.stack(output)).mean(dim = 0)
+            output = tta.disaugment(torch.stack(output).float()).mean(dim = 0)
 
         output = output.contiguous().view(B, -1, 1, dim, dim)
 
