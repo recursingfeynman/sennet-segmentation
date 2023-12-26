@@ -54,6 +54,14 @@ class TransformWrapper(BaseTransform):
         return image
 
 
+class Identity(BaseTransform):
+    def augment(self, image: torch.Tensor) -> torch.Tensor:
+        return image
+
+    def disaugment(self, image: torch.Tensor) -> torch.Tensor:
+        return image
+
+
 class HorizontalFlip(BaseTransform):
     def augment(self, image: torch.Tensor) -> torch.Tensor:
         image = F.hflip(image)
