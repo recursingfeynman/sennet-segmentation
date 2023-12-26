@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from ..functional import combine_patches, extract_patches, rescale
-from ..postprocessing import TestTimeAugmentations
+from ..postprocessing import Combine
 
 
 @torch.no_grad()
@@ -19,7 +19,7 @@ def predict(
     stride: int,
     padding: str,
     batch_size: int,
-    tta: Optional[TestTimeAugmentations] = None,
+    tta: Optional[Combine] = None,
     device: str | torch.device = "cpu",
     kidney_model: Optional[nn.Module] = None,
 ) -> np.ndarray:
@@ -61,23 +61,27 @@ def predict(
         patches = extract_patches(images, dim, stride, padding)
         patches = patches.reshape(-1, C, dim, dim)
 
-        with torch.autocast(device_type=str(device)):
-            outputs = model.forward(patches.to(device))
-        outputs = outputs.sigmoid().cpu()
+        if tta is None:
+            with torch.autocast(device_type=str(device)):
+                output = model.forward(patches.to(device))
+            output = output.sigmoid().cpu()
+        else:
+            output = []
+            for group in tta.augment(images): # (T, B * N, C, H, W)
+                with torch.autocast(device_type=str(device)):
+                    out = model.forward(group.to(device))
+                output.append(out.sigmoid().cpu())
+            output = tta.disaugment(torch.stack(output)).mean(dim = 0)
 
-        if tta is not None:
-            outputs = torch.cat((outputs[None], tta.predict(patches.to(device))), 0)
-            outputs = torch.mean(outputs, 0)
-
-        outputs = outputs.contiguous().view(B, -1, 1, dim, dim)
+        output = output.contiguous().view(B, -1, 1, dim, dim)
 
         if kidney_model is not None:
             kidneys = find_kidney(kidney_model, images, 512, device)
             kidneys = extract_patches(kidneys, dim, stride, padding="constant")
-            outputs = outputs * kidneys
+            output = output * kidneys
 
         # Reconstruct original images
-        outputs = combine_patches((H, W), outputs.float(), dim, stride, lomc=False)
+        outputs = combine_patches((H, W), output.float(), dim, stride, lomc=False)
         volume.extend(outputs.squeeze(1).numpy())
 
     return np.stack(volume)

@@ -2,33 +2,44 @@ import random
 from typing import Callable, Optional
 
 import torch
-import torch.nn as nn
 import torchvision.transforms.functional as F
 
+from ._base import BaseTransform
 
-class TestTimeAugmentations:
-    def __init__(
-        self,
-        model: nn.Module,
-        transforms: list,
-        device: str = "cpu",
-    ):
-        self.model = model
+
+class Compose(BaseTransform):
+    def __init__(self, transforms: list[BaseTransform]):
         self.transforms = transforms
-        self.device = device
 
-    @torch.no_grad()
-    def predict(self, image: torch.Tensor) -> torch.Tensor:
+    def augment(self, image: torch.Tensor) -> torch.Tensor:
+        for t in self.transforms:
+            image = t.augment(image)
+        return image
+
+    def disaugment(self, image: torch.Tensor) -> torch.Tensor:
+        for t in self.transforms[::-1]:
+            image = t.disaugment(image)
+        return image
+
+
+class Combine(BaseTransform):
+    def __init__(self, transforms: list[Compose | BaseTransform]):
+        self.transforms = transforms
+
+    def augment(self, image: torch.Tensor) -> torch.Tensor:
         augs = []
-        for transform in self.transforms:
-            aug = transform.augment(image)
-            with torch.autocast(device_type=image.device.type):
-                aug = self.model.forward(aug)
-            augs.append(transform.disaugment(aug.float().to(self.device)))
+        for t in self.transforms:
+            augs.append(t.augment(image))
         return torch.stack(augs)
 
+    def disaugment(self, augs: torch.Tensor) -> torch.Tensor:
+        images = []
+        for index, t in enumerate(self.transforms):
+            images.append(t.disaugment(augs[index]))
+        return torch.stack(images)
 
-class TransformWrapper:
+
+class TransformWrapper(BaseTransform):
     def __init__(self, transform: Callable, inverse: Optional[Callable] = None):
         self.transform = transform
         self.inverse = inverse
@@ -43,7 +54,7 @@ class TransformWrapper:
         return image
 
 
-class HorizontalFlip:
+class HorizontalFlip(BaseTransform):
     def augment(self, image: torch.Tensor) -> torch.Tensor:
         image = F.hflip(image)
         return image
@@ -53,7 +64,7 @@ class HorizontalFlip:
         return image
 
 
-class VerticalFlip:
+class VerticalFlip(BaseTransform):
     def augment(self, image: torch.Tensor) -> torch.Tensor:
         image = F.vflip(image)
         return image
@@ -63,7 +74,7 @@ class VerticalFlip:
         return image
 
 
-class Rotate90:
+class Rotate90(BaseTransform):
     def __init__(self, sign: Optional[int] = None):
         if sign is not None:
             self.angle = 90 * sign
