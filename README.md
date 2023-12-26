@@ -19,17 +19,13 @@
 |    ANG-71/8    | 0.904 | 0.704 | patches, rescale, +kidney-3-sparse, D800-S600, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.2, 0.6)|
 |    ANG-71/8    | 0.904 | 0.708 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.1, 0.4)|
 |    ANG-71/8    | 0.904 | 0.703 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (threshold 0.2) |
+|    ANG-79/3    | 0.815 | 0.726 | full resolution, TTA (2x rotate, hflip, vflip), fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
 
 ## Todos 💡
 
-- [x] Train a separate model for kidney prediction.
-- [x] Test-Time augmentations.
 - [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
 - [ ] Longer training (15+ epochs).
-- [ ] Flood fill
-- [x] Hysteresis thresholding.
 - [ ] Subvolume based normalization.
-- [x] Implement fast surface dice to spot best model.
 - [ ] Train on kidney_1_dense + kidney_3_dense/sparse.
 
 ## Installation
