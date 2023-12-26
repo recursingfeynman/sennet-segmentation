@@ -19,14 +19,17 @@
 |    ANG-71/8    | 0.904 | 0.704 | patches, rescale, +kidney-3-sparse, D800-S600, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.2, 0.6)|
 |    ANG-71/8    | 0.904 | 0.708 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (hysteresis 0.1, 0.4)|
 |    ANG-71/8    | 0.904 | 0.703 | patches, rescale, +kidney-3-sparse, D512-S412, TTA (2x rotate90, hflip, vflip), fill holes, w/o lomc, vessels * kidney (threshold 0.2) |
-|    ANG-79/3    | 0.815 | 0.726 | full resolution, TTA (2x rotate, hflip, vflip), fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
+|    ANG-79/3    | 0.815 | 0.726 | full resolution, rescale, TTA, fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
+|    ANG-84/5    | 0.838 | 0.739 | full resolution, z-scaling, TTA, fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
 
 ## Todos 💡
 
 - [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
-- [ ] Longer training (15+ epochs).
-- [ ] Subvolume based normalization.
+- [ ] Subvolume based normalization (test).
 - [ ] Train on kidney_1_dense + kidney_3_dense/sparse.
+- [ ] ConvNext, transformer-based architectures, UNet++, BCU-Net.
+- [ ] Fix generalized surface loss.
+- [ ] 2.5D approach.
 
 ## Installation
 
