@@ -22,15 +22,6 @@
 |    ANG-79/3    | 0.815 | 0.726 | full resolution, rescale, TTA, fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
 |    ANG-84/5    | 0.838 | 0.739 | full resolution, z-scaling, TTA, fill holes, vessels * kidney (hysteresis 0.2, 0.5) |
 
-## Todos 💡
-
-- [ ] Investigate another distance-based loss functions (Hausdorff, Edge, etc).
-- [ ] Subvolume based normalization (test).
-- [ ] Train on kidney_1_dense + kidney_3_dense/sparse.
-- [ ] ConvNext, transformer-based architectures, UNet++, BCU-Net.
-- [ ] Fix generalized surface loss.
-- [ ] 2.5D approach.
-
 ## Installation
 
 ```shell
@@ -98,10 +89,10 @@ NEPTUNE-TOKEN="<neptune-api-token>"
 $ make submission
 ```
 
-This code facilitates the integration between Neptune and Kaggle. It fetches runs from the Neptune tracking server, downloads the latest model checkpoint from a selected run, generates a code snapshot, and uploads the downloaded model and code snapshot to Kaggle as dataset.
+This code facilitates the integration between Neptune and Kaggle. It fetches runs from the Neptune tracking server, downloads the latest model checkpoint from a selected run, generates a code snapshot, and uploads the downloaded model and code snapshot to Kaggle as a dataset.
 
 ### Notebook submission
-To submit entire inference notebook to competition use code below: 
+To submit the entire inference notebook to competition, use the code below: 
 
 ```shell
 $ make submission-notebook
