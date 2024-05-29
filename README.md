@@ -1,5 +1,22 @@
 # SenNet Segmentation
 
+## Repo Structure
+```
+.
+├── angionet                # Core package
+├── bin                     # CLI utils for model submission
+├── notebooks               # Jupyter notebooks automatically uploaded from kaggle
+├── tests                   # Automated tests (most vulnerable parts of the code)
+├── .env.example            # Example of credentials file (.env)
+├── Makefile                # Workflow orchestration config
+├── MANIFEST.in
+├── LICENSE
+├── README.md
+├── requirements.txt        # Core dependencies
+├── .pre-commit-config.yaml # Pre-commit configs
+└── .gitignore
+```
+
 ## Submission History
 
 | Run/Checkpoint |   CV  |   LB  | Notes |
